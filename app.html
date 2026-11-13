@@ -770,6 +770,9 @@ const App = {
       this._currentProject.floorPlanTitle=this.floorPlan.title;
       this.saveState();
     }
+    if(this.currentPage==='project-detail'&&page!=='floorplan'&&page!=='estimate'){
+      this._currentProject=null;
+    }
     this.currentPage=page;
     if(page==='floorplan')this.resizeCanvas();
     if(page==='scanner')this.resetScanner();
@@ -1424,7 +1427,7 @@ const App = {
   },
   openProjectPlan(){
     const p=this._currentProject;if(!p)return;
-    if(p.floorPlanElements){this.floorPlan.elements=p.floorPlanElements;this.floorPlan.title=p.floorPlanTitle||p.name;}
+    if(p.floorPlanElements){this.floorPlan.elements=p.floorPlanElements.map(e=>({...e}));this.floorPlan.title=p.floorPlanTitle||p.name;}
     else{this.floorPlan.title=p.name;}
     document.getElementById('fp-title').value=this.floorPlan.title;
     this.drawFloorPlan();this.navigate('floorplan');

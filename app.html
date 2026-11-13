@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Electro AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1e3a5f">
+<meta name="description" content="Professional electrical estimating, floor plans, and NEC tools for electricians and contractors.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+<style>
+:root {
+  --bg: #f4f1ec; --bg-surface: #ffffff; --bg-elevated: #ffffff; --bg-inset: #ece8e1;
+  --fg: #1a1d23; --fg-secondary: #5a5d66; --fg-tertiary: #8a8d96; --fg-inverse: #ffffff;
+  --primary: #1e3a5f; --primary-light: #2a5080; --primary-hover: #16304f;
+  --accent: #c07428; --accent-light: #d48a3a; --accent-hover: #a86420; --accent-bg: rgba(192,116,40,0.1);
+  --success: #2a7a4a; --success-bg: rgba(42,122,74,0.1);
+  --warning: #b86e20; --warning-bg: rgba(184,110,32,0.1);
+  --danger: #b83232; --danger-bg: rgba(184,50,50,0.1);
+  --border: #ddd8d0; --border-light: #eae6df;
+  --shadow-sm: 0 1px 3px rgba(30,58,95,0.06); --shadow-md: 0 4px 12px rgba(30,58,95,0.08); --shadow-lg: 0 8px 24px rgba(30,58,95,0.1);
+  --radius: 12px; --radius-sm: 8px; --radius-lg: 16px; --radius-xl: 20px;
+  --nav-height: 64px; --header-height: 56px;
+  --font-display: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1218; --bg-surface: #181d25; --bg-elevated: #1f2530; --bg-inset: #131820;
+    --fg: #e4e2dc; --fg-secondary: #9ca0a8; --fg-tertiary: #686c74; --fg-inverse: #0e1218;
+    --primary: #5a9ad8; --primary-light: #6aaae8; --primary-hover: #4a8ac8;
+    --accent: #d48a3a; --accent-light: #e49a4a; --accent-hover: #c47a2a; --accent-bg: rgba(212,138,58,0.12);
+    --success: #3da06a; --success-bg: rgba(61,160,106,0.12);
+    --warning: #d48a3a; --warning-bg: rgba(212,138,58,0.12);
+    --danger: #d84848; --danger-bg: rgba(216,72,72,0.12);
+    --border: #2a3040; --border-light: #1f2530;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.25); --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1218; --bg-surface: #181d25; --bg-elevated: #1f2530; --bg-inset: #131820;
+  --fg: #e4e2dc; --fg-secondary: #9ca0a8; --fg-tertiary: #686c74; --fg-inverse: #0e1218;
+  --primary: #5a9ad8; --primary-light: #6aaae8; --primary-hover: #4a8ac8;
+  --accent: #d48a3a; --accent-light: #e49a4a; --accent-hover: #c47a2a; --accent-bg: rgba(212,138,58,0.12);
+  --success: #3da06a; --success-bg: rgba(61,160,106,0.12);
+  --warning: #d48a3a; --warning-bg: rgba(212,138,58,0.12);
+  --danger: #d84848; --danger-bg: rgba(216,72,72,0.12);
+  --border: #2a3040; --border-light: #1f2530;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2); --shadow-md: 0 4px 12px rgba(0,0,0,0.25); --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+body::before { content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:100; background:var(--primary); }
+*,*::before,*::after { box-sizing:border-box; }
+h1,h2,h3,h4,h5 { font-family:var(--font-display); font-weight:700; line-height:1.2; text-wrap:balance; margin:0; }
+p { margin:0; }
+button { font-family:var(--font-body); cursor:pointer; border:none; background:none; padding:0; color:inherit; font-size:inherit; }
+input,select,textarea { font-family:var(--font-body); font-size:16px; color:var(--fg); background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; width:100%; outline:none; transition:border-color .2s; }
+input:focus,select:focus,textarea:focus { border-color:var(--primary); }
+#app { display:flex; flex-direction:column; min-height:100vh; max-width:600px; margin:0 auto; }
+@media(min-width:768px) { #app { max-width:1200px; } }
+.app-header { position:sticky; top:env(safe-area-inset-top,0px); z-index:50; background:var(--primary); color:var(--fg-inverse); display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:0 0 var(--radius-lg) var(--radius-lg); min-height:var(--header-height); }
+.app-header .logo { display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-0.02em; }
+.app-header .logo .bolt { color:var(--accent-light); }
+.app-header .header-actions { margin-left:auto; display:flex; gap:8px; }
+.app-header .header-actions button { color:rgba(255,255,255,.85); width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:background .2s; font-size:16px; }
+.app-header .header-actions button:hover { background:rgba(255,255,255,.15); }
+.app-content { flex:1; padding-block:16px; padding-bottom:calc(var(--nav-height) + 24px + env(safe-area-inset-bottom,0px)); }
+.page { display:none; } .page.active { display:block; }
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:50; background:var(--bg-surface); border-top:1px solid var(--border); display:flex; justify-content:space-around; align-items:stretch; padding-bottom:env(safe-area-inset-bottom,0px); padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px); box-shadow:0 -2px 12px rgba(0,0,0,.06); }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 4px; color:var(--fg-tertiary); font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:.04em; transition:color .2s; text-decoration:none; }
+.nav-item i { font-size:20px; } .nav-item.active { color:var(--primary); }
+.nav-item.scan-btn { position:relative; margin-top:-18px; }
+.nav-item.scan-btn .scan-circle { width:52px; height:52px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px; box-shadow:0 4px 12px rgba(192,116,40,.35); transition:transform .2s,box-shadow .2s; }
+.nav-item.scan-btn:hover .scan-circle { transform:scale(1.08); box-shadow:0 6px 16px rgba(192,116,40,.45); }
+.nav-item.scan-btn span { margin-top:4px; }
+.card { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow-sm); }
+.card-lg { padding:20px; border-radius:var(--radius-lg); }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.section-title { font-size:16px; font-weight:700; font-family:var(--font-display); }
+.section-link { font-size:13px; color:var(--primary); font-weight:600; text-decoration:none; cursor:pointer; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border-radius:var(--radius-sm); font-weight:600; font-size:14px; transition:all .2s; white-space:nowrap; }
+.btn-primary { background:var(--primary); color:var(--fg-inverse); } .btn-primary:hover { background:var(--primary-hover); }
+.btn-accent { background:var(--accent); color:#fff; } .btn-accent:hover { background:var(--accent-hover); }
+.btn-outline { border:1.5px solid var(--border); color:var(--fg); background:var(--bg-surface); } .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-sm { padding:8px 14px; font-size:13px; } .btn-full { width:100%; }
+.btn-icon { width:40px; height:40px; padding:0; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+.badge-active { background:var(--success-bg); color:var(--success); }
+.badge-pending { background:var(--warning-bg); color:var(--warning); }
+.badge-completed { background:var(--accent-bg); color:var(--accent); }
+.badge-draft { background:var(--bg-inset); color:var(--fg-tertiary); }
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+@media(max-width:360px) { .stats-row { grid-template-columns:1fr; } }
+.stat-card { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); padding:14px; text-align:center; box-shadow:var(--shadow-sm); }
+.stat-value { font-family:var(--font-display); font-size:24px; font-weight:800; color:var(--primary); font-variant-numeric:tabular-nums; }
+.stat-label { font-size:11px; color:var(--fg-tertiary); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
+.quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+@media(max-width:400px) { .quick-actions { grid-template-columns:repeat(2,1fr); } }
+.quick-action { display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 8px; background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); font-size:11px; font-weight:600; color:var(--fg-secondary); transition:all .2s; box-shadow:var(--shadow-sm); }
+.quick-action:hover { border-color:var(--primary); color:var(--primary); transform:translateY(-1px); box-shadow:var(--shadow-md); }
+.quick-action .qa-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.qa-icon.blue { background:rgba(30,58,95,.1); color:var(--primary); }
+.qa-icon.copper { background:var(--accent-bg); color:var(--accent); }
+.qa-icon.green { background:var(--success-bg); color:var(--success); }
+.qa-icon.steel { background:var(--bg-inset); color:var(--fg-secondary); }
+.project-list { display:flex; flex-direction:column; gap:10px; }
+.project-card { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); padding:14px 16px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:all .2s; box-shadow:var(--shadow-sm); }
+.project-card:hover { border-color:var(--primary); box-shadow:var(--shadow-md); }
+.project-icon { width:44px; height:44px; border-radius:10px; background:var(--accent-bg); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.project-info { flex:1; min-width:0; }
+.project-name { font-family:var(--font-display); font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.project-meta { font-size:12px; color:var(--fg-tertiary); margin-top:2px; }
+.project-amount { font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--primary); text-align:right; font-variant-numeric:tabular-nums; }
+.scanner-area { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:40px 20px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg-inset); }
+.scanner-area:hover,.scanner-area.dragover { border-color:var(--accent); background:var(--accent-bg); }
+.scanner-icon { font-size:48px; color:var(--accent); margin-bottom:12px; }
+.scanner-title { font-family:var(--font-display); font-weight:700; font-size:18px; margin-bottom:6px; }
+.scanner-desc { font-size:13px; color:var(--fg-tertiary); }
+.scan-preview { width:100%; max-height:300px; object-fit:cover; border-radius:var(--radius); margin-bottom:16px; }
+.material-grid { display:flex; flex-direction:column; gap:8px; }
+.material-item { display:flex; align-items:center; gap:12px; padding:12px; background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius-sm); }
+.material-item .mat-info { flex:1; min-width:0; }
+.material-item .mat-name { font-weight:600; font-size:14px; }
+.material-item .mat-detail { font-size:12px; color:var(--fg-tertiary); margin-top:2px; }
+.material-item .mat-price { font-family:var(--font-mono); font-weight:500; font-size:14px; color:var(--primary); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.qty-control { display:flex; align-items:center; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; }
+.qty-control button { width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--bg-inset); font-size:14px; font-weight:700; color:var(--fg-secondary); transition:background .15s; }
+.qty-control button:hover { background:var(--border); }
+.qty-control input { width:42px; text-align:center; border:none; border-radius:0; padding:4px; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; background:var(--bg-surface); }
+.cat-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:12px; -webkit-overflow-scrolling:touch; }
+.cat-tabs::-webkit-scrollbar { display:none; }
+.cat-tab { padding:8px 14px; border-radius:20px; font-size:13px; font-weight:600; white-space:nowrap; background:var(--bg-inset); color:var(--fg-secondary); transition:all .2s; }
+.cat-tab.active { background:var(--primary); color:var(--fg-inverse); }
+.cat-tab:hover:not(.active) { background:var(--border); }
+.summary-box { background:var(--primary); color:var(--fg-inverse); border-radius:var(--radius-lg); padding:20px; margin-top:16px; }
+.summary-row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
+.summary-row.total { border-top:1px solid rgba(255,255,255,.2); margin-top:8px; padding-top:12px; font-size:20px; font-family:var(--font-display); font-weight:800; }
+.summary-row .label { opacity:.85; } .summary-row .value { font-weight:600; font-variant-numeric:tabular-nums; }
+.floor-plan-container { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius-lg); overflow:hidden; }
+.fp-toolbar { display:flex; gap:4px; padding:8px 12px; border-bottom:1px solid var(--border-light); overflow-x:auto; background:var(--bg-inset); }
+.fp-tool { width:36px; height:36px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--fg-secondary); transition:all .15s; flex-shrink:0; }
+.fp-tool.active { background:var(--primary); color:var(--fg-inverse); }
+.fp-tool:hover:not(.active) { background:var(--border); }
+.fp-canvas-wrap { width:100%; height:clamp(440px,72dvh,900px); overflow:auto; background:var(--bg-inset); }
+.fp-canvas-wrap canvas { display:block; cursor:crosshair; touch-action:none; max-width:none; }
+.fp-canvas-wrap canvas[data-pan] { cursor:grab; touch-action:pan-x pan-y; }
+.fp-heading,.fp-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.fp-heading { justify-content:space-between; margin-bottom:12px; }
+.fp-toolbar .fp-tool { width:auto; min-width:36px; padding-inline:8px; gap:5px; }
+#fp-print { display:none; }
+@media print {
+  @page { size:landscape; margin:10mm; }
+  body.fp-printing #app, body.fp-printing #toast { display:none !important; }
+  body.fp-printing #fp-print { display:block; color:#111; background:white; }
+  #fp-print h1 { font-size:16pt; margin:0 0 2mm; }
+  #fp-print p { font-size:9pt; margin:0 0 3mm; }
+  #fp-print img { display:block; width:100%; max-height:158mm; object-fit:contain; object-position:top left; }
+}
+.fp-symbols { display:flex; gap:6px; padding:8px 12px; border-top:1px solid var(--border-light); overflow-x:auto; background:var(--bg-inset); }
+.fp-symbol { display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px; border-radius:var(--radius-sm); font-size:10px; color:var(--fg-secondary); cursor:pointer; flex-shrink:0; min-width:56px; transition:all .15s; }
+.fp-symbol:hover { background:var(--accent-bg); color:var(--accent); }
+.fp-symbol.active { background:var(--accent); color:#fff; }
+.fp-symbol i { font-size:18px; }
+.nec-tool-card { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; box-shadow:var(--shadow-sm); }
+.nec-tool-title { font-family:var(--font-display); font-size:16px; font-weight:700; margin-bottom:4px; }
+.nec-tool-desc { font-size:13px; color:var(--fg-tertiary); margin-bottom:16px; }
+.form-group { margin-bottom:14px; }
+.form-label { display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-secondary); margin-bottom:6px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.nec-result { background:var(--accent-bg); border:1px solid var(--accent); border-radius:var(--radius-sm); padding:14px; margin-top:12px; }
+.nec-result-title { font-weight:700; font-size:13px; color:var(--accent); margin-bottom:8px; }
+.nec-result-row { display:flex; justify-content:space-between; padding:4px 0; font-size:14px; }
+.nec-result-row .val { font-weight:600; font-family:var(--font-mono); color:var(--primary); font-variant-numeric:tabular-nums; }
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:flex; align-items:flex-end; justify-content:center; padding:16px; padding-bottom:calc(16px + env(safe-area-inset-bottom,0px)); }
+.modal-overlay[hidden] { display:none !important; }
+.modal { background:var(--bg-surface); border-radius:var(--radius-xl); width:100%; max-width:500px; max-height:80vh; overflow-y:auto; padding:24px; box-shadow:var(--shadow-lg); }
+.modal-title { font-family:var(--font-display); font-size:20px; font-weight:800; margin-bottom:16px; }
+.empty-state { text-align:center; padding:40px 20px; color:var(--fg-tertiary); }
+.empty-state i { font-size:48px; margin-bottom:12px; opacity:.4; }
+.empty-state h3 { font-size:16px; color:var(--fg-secondary); margin-bottom:4px; }
+.divider { height:1px; background:var(--border-light); margin:16px 0; }
+.search-bar { position:relative; margin-bottom:12px; }
+.search-bar input { padding-left:36px; }
+.search-bar i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--fg-tertiary); font-size:14px; }
+.toast { position:fixed; bottom:calc(var(--nav-height) + 16px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%) translateY(100px); background:var(--fg); color:var(--bg); padding:12px 20px; border-radius:var(--radius); font-size:14px; font-weight:600; z-index:300; box-shadow:var(--shadow-lg); transition:transform .3s ease; pointer-events:none; max-width:calc(100% - 32px); text-align:center; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+/* ── NEW: Checklist ── */
+.checklist-item { display:flex; align-items:flex-start; gap:10px; padding:12px; border-bottom:1px solid var(--border-light); }
+.checklist-item:last-child { border-bottom:none; }
+.checklist-item input[type=checkbox] { width:20px; height:20px; margin-top:2px; accent-color:var(--success); flex-shrink:0; }
+.checklist-item.checked .cl-text { text-decoration:line-through; color:var(--fg-tertiary); }
+.cl-text { font-size:14px; } .cl-ref { font-size:11px; color:var(--fg-tertiary); font-family:var(--font-mono); }
+/* ── NEW: Timer ── */
+.timer-display { font-family:var(--font-mono); font-size:36px; font-weight:700; text-align:center; color:var(--primary); font-variant-numeric:tabular-nums; padding:16px; }
+.timer-controls { display:flex; gap:10px; justify-content:center; }
+/* ── NEW: Templates ── */
+.template-card { background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); padding:14px; cursor:pointer; transition:all .2s; }
+.template-card:hover { border-color:var(--accent); box-shadow:var(--shadow-md); }
+.template-card h4 { font-size:14px; margin-bottom:4px; }
+.template-card p { font-size:12px; color:var(--fg-tertiary); }
+.template-card .tpl-price { font-family:var(--font-mono); font-weight:600; color:var(--primary); margin-top:6px; font-size:15px; }
+/* ── NEW: History ── */
+.history-item { display:flex; align-items:center; gap:12px; padding:12px; background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; }
+.history-item { width:100%; text-align:left; color:var(--fg); font:inherit; }
+.estimate-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px; }
+.estimate-actions .btn { min-width:0; padding-inline:8px; }
+.history-item:hover { border-color:var(--primary); }
+/* ── NEW: More page ── */
+.more-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.more-item { display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px 12px; background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); cursor:pointer; transition:all .2s; font-size:13px; font-weight:600; color:var(--fg-secondary); }
+.more-item:hover { border-color:var(--primary); color:var(--primary); }
+.more-item i { font-size:24px; color:var(--accent); }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+/* ── Trial banner ── */
+.trial-banner { background:linear-gradient(135deg,var(--accent),var(--accent-hover)); color:#fff; text-align:center; padding:10px 16px; font-size:13px; font-weight:600; display:none; }
+.trial-banner a { color:#fff; text-decoration:underline; margin-left:8px; }
+.trial-banner.visible { display:block; }
+/* ── Auth gate ── */
+.auth-gate { position:fixed; inset:0; z-index:500; background:var(--bg); display:flex; align-items:center; justify-content:center; }
+.auth-gate[hidden] { display:none !important; }
+.auth-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:32px; max-width:400px; width:calc(100% - 32px); box-shadow:var(--shadow-lg); text-align:center; }
+.auth-card .logo { font-family:var(--font-display); font-weight:800; font-size:28px; color:var(--primary); margin-bottom:8px; }
+.auth-card .logo .bolt { color:var(--accent); }
+.auth-card p { color:var(--fg-secondary); font-size:14px; margin-bottom:20px; }
+</style>
+</head>
+<body>
+
+<!-- Auth gate (shown when no active session) -->
+<div id="auth-gate" class="auth-gate" hidden>
+  <div class="auth-card">
+    <div class="logo"><span class="bolt"><i class="fa-solid fa-bolt"></i></span> Electro AI</div>
+    <p>Professional electrical estimating, floor plans &amp; NEC tools</p>
+    <div class="form-group"><input type="email" id="auth-email" placeholder="Email address"></div>
+    <div class="form-group"><input type="password" id="auth-password" placeholder="Password" minlength="6"></div>
+    <button class="btn btn-primary btn-full" style="margin-bottom:10px" onclick="App.signIn()">Sign In</button>
+    <button class="btn btn-accent btn-full" style="margin-bottom:10px" onclick="App.startTrial()"><i class="fa-solid fa-rocket"></i> Start 14-Day Free Trial</button>
+    <button class="btn btn-outline btn-full" onclick="App.enterDemo()"><i class="fa-solid fa-play"></i> Try Demo</button>
+    <p style="margin-top:16px;font-size:12px;color:var(--fg-tertiary)">No credit card required for trial</p>
+  </div>
+</div>
+
+<!-- Trial countdown banner -->
+<div id="trial-banner" class="trial-banner"></div>
+
+<div id="app">
+  <header class="app-header">
+    <div class="logo"><span class="bolt"><i class="fa-solid fa-bolt"></i></span> Electro AI</div>
+    <div class="header-actions">
+      <button onclick="App.navigate('more')" title="Tools"><i class="fa-solid fa-ellipsis"></i></button>
+      <button onclick="App.showSettings()" title="Settings"><i class="fa-solid fa-gear"></i></button>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:22px;margin-bottom:2px" id="greeting">Good morning</h2>
+        <p style="font-size:13px;color:var(--fg-tertiary)" id="dashboard-date"></p>
+      </div>
+      <div class="stats-row" id="dashboard-stats"></div>
+      <div class="section-header"><span class="section-title">Quick Actions</span></div>
+      <div class="quick-actions">
+        <button class="quick-action" onclick="App.navigate('estimate')"><div class="qa-icon blue"><i class="fa-solid fa-calculator"></i></div>Estimate</button>
+        <button class="quick-action" onclick="App.navigate('scanner')"><div class="qa-icon copper"><i class="fa-solid fa-camera"></i></div>Scan</button>
+        <button class="quick-action" onclick="App.navigate('floorplan')"><div class="qa-icon green"><i class="fa-solid fa-drafting-compass"></i></div>Floor Plan</button>
+        <button class="quick-action" onclick="App.navigate('more')"><div class="qa-icon steel"><i class="fa-solid fa-toolbox"></i></div>Tools</button>
+      </div>
+      <div class="section-header">
+        <span class="section-title">Recent Projects</span>
+        <button class="section-link" onclick="App.navigate('projects')">View All</button>
+      </div>
+      <div class="project-list" id="dashboard-projects"></div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div id="page-projects" class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h2 style="font-size:20px">Projects</h2>
+        <button class="btn btn-primary btn-sm" onclick="App.showNewProject()"><i class="fa-solid fa-plus"></i> New</button>
+      </div>
+      <div class="search-bar"><i class="fa-solid fa-search"></i><input type="text" placeholder="Search projects..." id="project-search" oninput="App.filterProjects(this.value)"></div>
+      <div class="project-list" id="projects-list"></div>
+    </div>
+
+    <!-- SCANNER -->
+    <div id="page-scanner" class="page">
+      <h2 style="font-size:20px;margin-bottom:16px">Photo Scanner Demo</h2>
+      <div id="scanner-upload">
+        <button class="btn btn-primary btn-full" style="margin-bottom:12px" onclick="App.openCamera()"><i class="fa-solid fa-camera"></i> Take Photo</button>
+        <input id="camera-input" type="file" accept="image/*" capture="environment" hidden onchange="App.previewPhoto(this.files[0]);this.value=''">
+        <div id="camera-panel" hidden>
+          <video id="camera-video" class="scan-preview" autoplay playsinline muted></video>
+          <div class="fp-actions" style="margin-bottom:12px"><button class="btn btn-primary" id="camera-capture" onclick="App.capturePhoto()" disabled>Capture</button><button class="btn btn-outline" onclick="App.closeCamera()">Cancel</button></div>
+        </div>
+        <div class="scanner-area" id="drop-zone" onclick="document.getElementById('photo-input').click()">
+          <div class="scanner-icon"><i class="fa-solid fa-camera-retro"></i></div>
+          <div class="scanner-title">Upload Job Site Photo</div>
+          <div class="scanner-desc">Preview a job site photo or view sample components. Sample quantities are for demonstration only.</div>
+          <input type="file" id="photo-input" accept="image/*" hidden onchange="App.previewPhoto(this.files[0]);this.value=''" onclick="event.stopPropagation()">
+        </div>
+        <div style="margin-top:16px"><button class="btn btn-accent btn-full" onclick="App.loadDemoScan()"><i class="fa-solid fa-wand-magic-sparkles"></i> View Sample Results</button></div>
+      </div>
+      <div id="scanner-results" hidden></div>
+    </div>
+
+    <!-- ESTIMATE -->
+    <div id="page-estimate" class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h2 style="font-size:20px">Estimate Builder</h2>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" aria-label="Estimate templates" onclick="App.showTemplates()"><i class="fa-solid fa-layer-group"></i></button>
+          <button class="btn btn-outline btn-sm" aria-label="Saved estimates" onclick="App.showHistory()"><i class="fa-solid fa-clock-rotate-left"></i></button>
+          <button class="btn btn-accent btn-sm" onclick="App.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group" style="margin-bottom:0"><input type="text" id="est-project-name" aria-label="Project name" oninput="App.saveState()" placeholder="Project name" value="Sample Estimate"></div>
+        <div class="form-group" style="margin-bottom:0"><input type="text" id="est-client" aria-label="Client name" oninput="App.saveState()" placeholder="Client name"></div>
+      </div>
+      <div class="cat-tabs" id="material-tabs"></div>
+      <div class="search-bar"><i class="fa-solid fa-search"></i><input type="text" placeholder="Search materials..." id="material-search" oninput="App.filterMaterials(this.value)"></div>
+      <div class="material-grid" id="material-list"></div>
+      <div id="estimate-summary"></div>
+    </div>
+
+    <!-- FLOOR PLAN -->
+    <div id="page-floorplan" class="page">
+      <div class="fp-heading">
+        <h2 style="font-size:20px">Floor Plan &amp; Schematics</h2>
+        <div class="fp-actions">
+          <button class="btn btn-outline btn-sm" onclick="App.zoomFloorPlan(-0.25)" aria-label="Zoom out">−</button>
+          <button class="btn btn-outline btn-sm" onclick="App.fitFloorPlan()">Fit</button>
+          <button class="btn btn-outline btn-sm" onclick="App.zoomFloorPlan(0.25)" aria-label="Zoom in">+</button>
+          <button class="btn btn-primary btn-sm" onclick="App.printFloorPlan()"><i class="fa-solid fa-print"></i> Print / PDF</button>
+        <button class="btn btn-outline btn-sm" onclick="App.clearFloorPlan()"><i class="fa-solid fa-trash"></i> Clear</button>
+        </div>
+      </div>
+      <label class="form-label" for="fp-title">Drawing title</label>
+      <input id="fp-title" type="text" maxlength="120" placeholder="Electrical plan" oninput="App.floorPlan.title=this.value;App.saveState()" style="margin-bottom:8px">
+      <div class="floor-plan-container">
+        <div class="fp-toolbar" id="fp-toolbar">
+          <button class="fp-tool active" data-tool="select" onclick="App.setFPTool('select')">Pan</button>
+          <button class="fp-tool" data-tool="wall" onclick="App.setFPTool('wall')">Wall</button>
+          <button class="fp-tool" data-tool="room" onclick="App.setFPTool('room')">Room</button>
+          <button class="fp-tool" data-tool="wire" onclick="App.setFPTool('wire')">Wire</button>
+          <button class="fp-tool" data-tool="measure" onclick="App.setFPTool('measure')">Measure</button>
+          <button class="fp-tool" data-tool="symbol" onclick="App.setFPTool('symbol')">Symbol</button>
+          <button class="fp-tool" data-tool="text" onclick="App.setFPTool('text')">Label</button>
+          <button class="fp-tool" onclick="App.undoFP()">Undo</button>
+        </div>
+        <div class="fp-canvas-wrap" id="fp-canvas-wrap"><canvas id="fp-canvas" width="2400" height="1600" data-pan aria-label="Electrical drawing board"></canvas></div>
+        <div class="fp-symbols" id="fp-symbols">
+          <button class="fp-symbol" data-symbol="outlet" onclick="App.setFPSymbol('outlet')"><i class="fa-solid fa-plug"></i> Outlet</button>
+          <button class="fp-symbol" data-symbol="switch" onclick="App.setFPSymbol('switch')"><i class="fa-solid fa-toggle-on"></i> Switch</button>
+          <button class="fp-symbol" data-symbol="light" onclick="App.setFPSymbol('light')"><i class="fa-regular fa-lightbulb"></i> Light</button>
+          <button class="fp-symbol" data-symbol="panel" onclick="App.setFPSymbol('panel')"><i class="fa-solid fa-server"></i> Panel</button>
+          <button class="fp-symbol" data-symbol="gfci" onclick="App.setFPSymbol('gfci')"><i class="fa-solid fa-shield-halved"></i> GFCI</button>
+          <button class="fp-symbol" data-symbol="smoke" onclick="App.setFPSymbol('smoke')"><i class="fa-solid fa-bell"></i> Smoke</button>
+          <button class="fp-symbol" data-symbol="fan" onclick="App.setFPSymbol('fan')"><i class="fa-solid fa-fan"></i> Fan</button>
+          <button class="fp-symbol" data-symbol="data" onclick="App.setFPSymbol('data')"><i class="fa-solid fa-ethernet"></i> Data</button>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--fg-tertiary);margin-top:8px;text-align:center">Drag to draw. Use Pan to move around the board, or Fit to see the full sheet. Each grid square represents 1 ft on the drawing.</p>
+    </div>
+
+    <!-- NEC TOOLS -->
+    <div id="page-nec" class="page">
+      <h2 style="font-size:20px;margin-bottom:16px">NEC Reference Tools</h2>
+      <div class="nec-tool-card">
+        <div class="nec-tool-title"><i class="fa-solid fa-bolt" style="color:var(--accent)"></i> Wire Sizing Calculator</div>
+        <div class="nec-tool-desc">NEC 310.16 &mdash; Correct wire gauge for your circuit</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Amperage (A)</label><input type="number" id="nec-amps" value="20" min="1" max="400"></div><div class="form-group"><label class="form-label">Voltage</label><select id="nec-voltage"><option value="120">120V</option><option value="208">208V</option><option value="240" selected>240V</option><option value="277">277V</option><option value="480">480V</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Distance (ft)</label><input type="number" id="nec-distance" value="100" min="1"></div><div class="form-group"><label class="form-label">Conductor</label><select id="nec-conductor"><option value="copper" selected>Copper</option><option value="aluminum">Aluminum</option></select></div></div>
+        <button class="btn btn-primary btn-full" onclick="App.calcWireSize()">Calculate Wire Size</button>
+        <div id="nec-wire-result"></div>
+      </div>
+      <div class="nec-tool-card">
+        <div class="nec-tool-title"><i class="fa-solid fa-percent" style="color:var(--accent)"></i> Voltage Drop Calculator</div>
+        <div class="nec-tool-desc">NEC 210.19(A) &mdash; Max 3% branch, 5% combined</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Amps</label><input type="number" id="vd-amps" value="20" min="1"></div><div class="form-group"><label class="form-label">Wire Size</label><select id="vd-wire"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="1/0">1/0</option><option value="2/0">2/0</option><option value="3/0">3/0</option><option value="4/0">4/0</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Distance (ft)</label><input type="number" id="vd-distance" value="100" min="1"></div><div class="form-group"><label class="form-label">Voltage</label><input type="number" id="vd-voltage" value="240" min="1"></div></div>
+        <button class="btn btn-primary btn-full" onclick="App.calcVoltageDrop()">Calculate Drop</button>
+        <div id="vd-result"></div>
+      </div>
+      <div class="nec-tool-card">
+        <div class="nec-tool-title"><i class="fa-solid fa-circle-nodes" style="color:var(--accent)"></i> Conduit Fill Calculator</div>
+        <div class="nec-tool-desc">NEC Chapter 9 &mdash; Conduit fill percentage</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Conduit Type</label><select id="cf-conduit"><option value="emt">EMT</option><option value="pvc-40">PVC Sch 40</option><option value="rigid">Rigid</option></select></div><div class="form-group"><label class="form-label">Size</label><select id="cf-size"><option value="0.5">1/2"</option><option value="0.75" selected>3/4"</option><option value="1">1"</option><option value="1.25">1-1/4"</option><option value="1.5">1-1/2"</option><option value="2">2"</option><option value="2.5">2-1/2"</option><option value="3">3"</option><option value="4">4"</option></select></div></div>
+        <div id="cf-wires"><div class="form-row" style="margin-bottom:8px"><div class="form-group" style="margin-bottom:0"><label class="form-label">Wire Size</label><select class="cf-wire-size"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option></select></div><div class="form-group" style="margin-bottom:0"><label class="form-label">Qty</label><input type="number" class="cf-wire-qty" value="3" min="1"></div></div></div>
+        <button class="btn btn-outline btn-sm" style="margin-bottom:12px" onclick="App.addConduitWire()"><i class="fa-solid fa-plus"></i> Add Wire</button>
+        <button class="btn btn-primary btn-full" onclick="App.calcConduitFill()">Calculate Fill</button>
+        <div id="cf-result"></div>
+      </div>
+      <!-- NEW: Load Calculator -->
+      <div class="nec-tool-card">
+        <div class="nec-tool-title"><i class="fa-solid fa-house-signal" style="color:var(--accent)"></i> Residential Load Calculator</div>
+        <div class="nec-tool-desc">NEC 220 &mdash; Service size calculation</div>
+        <div class="form-group"><label class="form-label">Living Area (sq ft)</label><input type="number" id="lc-sqft" value="2000" min="100"></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Small Appliance Circuits</label><input type="number" id="lc-small" value="2" min="1"></div><div class="form-group"><label class="form-label">Laundry Circuits</label><input type="number" id="lc-laundry" value="1" min="0"></div></div>
+        <div class="form-group"><label class="form-label">Fixed Appliances (check all that apply)</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-range" checked style="width:auto"> Range (8kW)</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-dryer" checked style="width:auto"> Dryer (5kW)</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-wh" checked style="width:auto"> Water Heater (4.5kW)</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-ac" style="width:auto"> A/C (5kW)</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-heat" style="width:auto"> Heat (10kW)</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-dw" style="width:auto"> Dishwasher (1.5kW)</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px"><input type="checkbox" id="lc-ev" style="width:auto"> EV Charger (7.7kW)</label>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="App.calcLoad()">Calculate Service Size</button>
+        <div id="lc-result"></div>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div id="page-checklist" class="page">
+      <h2 style="font-size:20px;margin-bottom:4px">Inspection Checklist</h2>
+      <p style="font-size:13px;color:var(--fg-tertiary);margin-bottom:16px">NEC-based rough &amp; final inspection items</p>
+      <div class="card card-lg" id="checklist-container"></div>
+    </div>
+
+    <!-- TIMER -->
+    <div id="page-timer" class="page">
+      <h2 style="font-size:20px;margin-bottom:16px">Labor Timer</h2>
+      <div class="card card-lg" style="text-align:center">
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-controls" style="margin-bottom:16px">
+          <button class="btn btn-primary" id="timer-start" onclick="App.toggleTimer()"><i class="fa-solid fa-play"></i> Start</button>
+          <button class="btn btn-outline" onclick="App.resetTimer()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <button class="btn btn-accent" onclick="App.logTime()"><i class="fa-solid fa-save"></i> Log</button>
+        </div>
+        <div class="form-group"><label class="form-label">Project</label><select id="timer-project"></select></div>
+        <div class="form-group"><label class="form-label">Notes</label><input type="text" id="timer-notes" placeholder="What are you working on?"></div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="section-header"><span class="section-title">Time Log</span><button class="section-link" onclick="App.clearTimeLogs()">Clear All</button></div>
+        <div id="time-logs"></div>
+      </div>
+    </div>
+
+    <!-- MORE / TOOLS -->
+    <div id="page-more" class="page">
+      <h2 style="font-size:20px;margin-bottom:16px">Tools</h2>
+      <div class="more-grid">
+        <button class="more-item" onclick="App.navigate('nec')"><i class="fa-solid fa-book"></i> NEC Calculators</button>
+        <button class="more-item" onclick="App.navigate('checklist')"><i class="fa-solid fa-clipboard-check"></i> Inspection Checklist</button>
+        <button class="more-item" onclick="App.navigate('timer')"><i class="fa-solid fa-stopwatch"></i> Labor Timer</button>
+        <button class="more-item" onclick="App.showTemplates()"><i class="fa-solid fa-layer-group"></i> Estimate Templates</button>
+        <button class="more-item" onclick="App.showHistory()"><i class="fa-solid fa-clock-rotate-left"></i> Saved Estimates</button>
+        <button class="more-item" onclick="App.showSettings()"><i class="fa-solid fa-gear"></i> Settings</button>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="dashboard" onclick="App.navigate('dashboard')"><i class="fa-solid fa-house"></i><span>Home</span></button>
+    <button class="nav-item" data-page="projects" onclick="App.navigate('projects')"><i class="fa-solid fa-folder"></i><span>Projects</span></button>
+    <button class="nav-item scan-btn" data-page="scanner" onclick="App.navigate('scanner')"><div class="scan-circle"><i class="fa-solid fa-camera"></i></div><span>Scan</span></button>
+    <button class="nav-item" data-page="estimate" onclick="App.navigate('estimate')"><i class="fa-solid fa-calculator"></i><span>Estimate</span></button>
+    <button class="nav-item" data-page="floorplan" onclick="App.navigate('floorplan')"><i class="fa-solid fa-drafting-compass"></i><span>Plans</span></button>
+  </nav>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-new-project" hidden><div class="modal">
+  <div class="modal-title">New Project</div>
+  <div class="form-group"><label class="form-label">Project Name</label><input type="text" id="np-name" placeholder="e.g., Johnson Kitchen Remodel"></div>
+  <div class="form-group"><label class="form-label">Client</label><input type="text" id="np-client" placeholder="Client name"></div>
+  <div class="form-group"><label class="form-label">Address</label><input type="text" id="np-address" placeholder="Job site address"></div>
+  <div class="form-group"><label class="form-label">Type</label><select id="np-type"><option value="residential">Residential</option><option value="commercial">Commercial</option><option value="industrial">Industrial</option><option value="renovation">Renovation</option></select></div>
+  <div style="display:flex;gap:10px;margin-top:20px"><button class="btn btn-outline btn-full" onclick="App.closeModal('modal-new-project')">Cancel</button><button class="btn btn-primary btn-full" onclick="App.createProject()">Create</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-settings" hidden><div class="modal">
+  <div class="modal-title">Settings</div>
+  <div class="form-group"><label class="form-label">Company Name</label><input type="text" id="set-company" placeholder="Your Company LLC"></div>
+  <div class="form-group"><label class="form-label">License Number</label><input type="text" id="set-license" placeholder="EC-12345"></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Labor Rate ($/hr)</label><input type="number" id="set-labor-rate" value="85" min="1" step="0.01"></div><div class="form-group"><label class="form-label">Markup %</label><input type="number" id="set-markup" value="25" min="0" max="100" step="0.01"></div></div>
+  <div class="form-group"><label class="form-label">Tax Rate %</label><input type="number" id="set-tax" value="8.25" min="0" max="30" step="0.01"></div>
+  <div class="form-group"><label class="form-label">Language</label><select id="set-lang" onchange="App.setLang(this.value)"><option value="en">English</option><option value="es">Espa&ntilde;ol</option></select></div>
+  <button class="btn btn-outline btn-full" onclick="App.downloadBackup()">Download data backup</button>
+  <div style="display:flex;gap:10px;margin-top:20px"><button class="btn btn-outline btn-full" onclick="App.closeModal('modal-settings')">Cancel</button><button class="btn btn-primary btn-full" onclick="App.saveSettings()">Save</button></div>
+  <div class="divider"></div>
+  <div style="display:flex;gap:10px"><button class="btn btn-accent btn-full btn-sm" onclick="App.showUpgrade()"><i class="fa-solid fa-crown"></i> Upgrade</button><button class="btn btn-outline btn-full btn-sm" onclick="App.signOut()" style="color:var(--danger);border-color:var(--danger)"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-templates" hidden><div class="modal">
+  <div class="modal-title">Estimate Templates</div>
+  <div style="display:flex;flex-direction:column;gap:10px" id="templates-list"></div>
+  <button class="btn btn-outline btn-full" style="margin-top:16px" onclick="App.closeModal('modal-templates')">Close</button>
+</div></div>
+
+<div class="modal-overlay" id="modal-history" hidden><div class="modal">
+  <div class="modal-title">Saved Estimates</div>
+  <div id="history-list"></div>
+  <button class="btn btn-outline btn-full" style="margin-top:16px" onclick="App.closeModal('modal-history')">Close</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<section id="fp-print"><h1></h1><p>Electrical drawing · Grid represents 1 ft · Fit to page</p><img alt="Electrical drawing"></section>
+
+<script>
+const App = {
+  currentPage:'dashboard',
+  settings:{ company:'Electro AI Pro', license:'EC-00001', laborRate:85, markup:25, tax:8.25, lang:'en' },
+  projects:[], estimate:{ items:[], projectName:'Sample Estimate', client:'' },
+  floorPlan:{ tool:'select', symbol:'outlet', elements:[], title:'', zoom:0.65 },
+  timer:{ running:false, seconds:0, interval:null },
+  timeLogs:[], savedEstimates:[],
+
+  // ── i18n ──
+  i18n: {
+    en: { greeting_am:'Good morning', greeting_pm:'Good afternoon', greeting_ev:'Good evening', projects:'Projects', active:'Active', pipeline:'Pipeline', estimate:'Estimate Builder', checklist:'Inspection Checklist', timer:'Labor Timer' },
+    es: { greeting_am:'Buenos días', greeting_pm:'Buenas tardes', greeting_ev:'Buenas noches', projects:'Proyectos', active:'Activos', pipeline:'Pipeline', estimate:'Crear Estimado', checklist:'Lista de Inspección', timer:'Cronómetro' }
+  },
+  t(key) { return (this.i18n[this.settings.lang] || this.i18n.en)[key] || key; },
+
+  materials: [
+    {id:'w1',cat:'Wiring',name:'14/2 NM-B Romex',unit:'ft',price:.45,labor:.02,desc:'General lighting'},
+    {id:'w2',cat:'Wiring',name:'12/2 NM-B Romex',unit:'ft',price:.58,labor:.02,desc:'20A general purpose'},
+    {id:'w3',cat:'Wiring',name:'10/2 NM-B Romex',unit:'ft',price:.95,labor:.03,desc:'30A dryer/AC'},
+    {id:'w4',cat:'Wiring',name:'6/3 NM-B Romex',unit:'ft',price:2.85,labor:.04,desc:'50A range/oven'},
+    {id:'w5',cat:'Wiring',name:'12/3 NM-B Romex',unit:'ft',price:.82,labor:.03,desc:'3-way switch'},
+    {id:'w6',cat:'Wiring',name:'10 AWG THHN',unit:'ft',price:.42,labor:.02,desc:'Individual conductor'},
+    {id:'w7',cat:'Wiring',name:'12 AWG THHN',unit:'ft',price:.28,labor:.02,desc:'Individual conductor'},
+    {id:'w8',cat:'Wiring',name:'8 AWG THHN',unit:'ft',price:.65,labor:.03,desc:'Feeder circuits'},
+    {id:'w9',cat:'Wiring',name:'6 AWG THHN',unit:'ft',price:.95,labor:.03,desc:'Sub-panel feeder'},
+    {id:'w10',cat:'Wiring',name:'2 AWG THHN',unit:'ft',price:1.85,labor:.04,desc:'Service entrance'},
+    {id:'w11',cat:'Wiring',name:'4/0 AWG THHN',unit:'ft',price:4.20,labor:.05,desc:'200A service'},
+    {id:'c1',cat:'Conduit',name:'1/2" EMT (10ft)',unit:'ea',price:4.20,labor:.25,desc:'Thinwall metallic'},
+    {id:'c2',cat:'Conduit',name:'3/4" EMT (10ft)',unit:'ea',price:5.80,labor:.30,desc:'Thinwall metallic'},
+    {id:'c3',cat:'Conduit',name:'1" EMT (10ft)',unit:'ea',price:8.50,labor:.35,desc:'Thinwall metallic'},
+    {id:'c4',cat:'Conduit',name:'1/2" PVC (10ft)',unit:'ea',price:3.20,labor:.20,desc:'Schedule 40'},
+    {id:'c5',cat:'Conduit',name:'3/4" PVC (10ft)',unit:'ea',price:4.50,labor:.25,desc:'Schedule 40'},
+    {id:'c6',cat:'Conduit',name:'1/2" Rigid (10ft)',unit:'ea',price:12.50,labor:.40,desc:'Galvanized'},
+    {id:'c7',cat:'Conduit',name:'1/2" Flex (25ft)',unit:'ea',price:18.00,labor:.15,desc:'Flexible metal'},
+    {id:'c8',cat:'Conduit',name:'1-1/4" EMT (10ft)',unit:'ea',price:12.00,labor:.40,desc:'Thinwall metallic'},
+    {id:'c9',cat:'Conduit',name:'2" EMT (10ft)',unit:'ea',price:18.00,labor:.50,desc:'Thinwall metallic'},
+    {id:'d1',cat:'Devices',name:'15A Duplex Receptacle',unit:'ea',price:1.20,labor:.30,desc:'Standard outlet'},
+    {id:'d2',cat:'Devices',name:'20A Duplex Receptacle',unit:'ea',price:2.80,labor:.30,desc:'Commercial grade'},
+    {id:'d3',cat:'Devices',name:'20A GFCI Receptacle',unit:'ea',price:16.50,labor:.40,desc:'Ground fault'},
+    {id:'d4',cat:'Devices',name:'20A AFCI Receptacle',unit:'ea',price:28.00,labor:.40,desc:'Arc fault'},
+    {id:'d5',cat:'Devices',name:'15A Single Pole Switch',unit:'ea',price:1.50,labor:.25,desc:'Standard toggle'},
+    {id:'d6',cat:'Devices',name:'15A 3-Way Switch',unit:'ea',price:3.20,labor:.35,desc:'Multi-location'},
+    {id:'d7',cat:'Devices',name:'Dimmer Switch',unit:'ea',price:18.00,labor:.35,desc:'LED compatible'},
+    {id:'d8',cat:'Devices',name:'USB Receptacle',unit:'ea',price:22.00,labor:.35,desc:'USB-A/C + outlets'},
+    {id:'d9',cat:'Devices',name:'Decora Plate (1G)',unit:'ea',price:1.80,labor:.05,desc:'Cover plate'},
+    {id:'d10',cat:'Devices',name:'Occupancy Sensor',unit:'ea',price:24.00,labor:.35,desc:'Motion switch'},
+    {id:'d11',cat:'Devices',name:'Smart Switch (WiFi)',unit:'ea',price:35.00,labor:.40,desc:'App controlled'},
+    {id:'d12',cat:'Devices',name:'Weather-Resistant GFCI',unit:'ea',price:22.00,labor:.45,desc:'Outdoor rated'},
+    {id:'b1',cat:'Boxes',name:'1-Gang Old Work Box',unit:'ea',price:2.50,labor:.20,desc:'Retrofit plastic'},
+    {id:'b2',cat:'Boxes',name:'2-Gang Old Work Box',unit:'ea',price:3.80,labor:.25,desc:'Retrofit plastic'},
+    {id:'b3',cat:'Boxes',name:'1-Gang New Work Box',unit:'ea',price:.65,labor:.15,desc:'Nail-on plastic'},
+    {id:'b4',cat:'Boxes',name:'4" Square Metal Box',unit:'ea',price:2.20,labor:.25,desc:'Junction box'},
+    {id:'b5',cat:'Boxes',name:'4-11/16" Square Box',unit:'ea',price:4.50,labor:.30,desc:'Large junction'},
+    {id:'b6',cat:'Boxes',name:'Round Ceiling Box',unit:'ea',price:3.80,labor:.30,desc:'Fixture rated'},
+    {id:'b7',cat:'Boxes',name:'Weatherproof Box',unit:'ea',price:8.50,labor:.35,desc:'Outdoor rated'},
+    {id:'b8',cat:'Boxes',name:'Fan-Rated Box',unit:'ea',price:12.00,labor:.35,desc:'Ceiling fan support'},
+    {id:'p1',cat:'Panels',name:'200A Main Panel (40sp)',unit:'ea',price:185.00,labor:8.0,desc:'Load center'},
+    {id:'p2',cat:'Panels',name:'100A Sub-Panel (20sp)',unit:'ea',price:95.00,labor:5.0,desc:'Sub-panel'},
+    {id:'p3',cat:'Panels',name:'20A 1P Breaker',unit:'ea',price:6.50,labor:.15,desc:'Single pole'},
+    {id:'p4',cat:'Panels',name:'20A AFCI Breaker',unit:'ea',price:38.00,labor:.20,desc:'Arc fault'},
+    {id:'p5',cat:'Panels',name:'30A 2P Breaker',unit:'ea',price:12.00,labor:.20,desc:'Double pole'},
+    {id:'p6',cat:'Panels',name:'50A 2P Breaker',unit:'ea',price:16.00,labor:.20,desc:'Range/oven'},
+    {id:'p7',cat:'Panels',name:'200A Main Breaker',unit:'ea',price:65.00,labor:.30,desc:'Main disconnect'},
+    {id:'p8',cat:'Panels',name:'Ground Rod 8ft',unit:'ea',price:18.00,labor:.75,desc:'Grounding electrode'},
+    {id:'p9',cat:'Panels',name:'60A 2P Breaker',unit:'ea',price:18.00,labor:.20,desc:'Sub-panel/EV'},
+    {id:'p10',cat:'Panels',name:'Whole House Surge',unit:'ea',price:85.00,labor:.50,desc:'Type 2 SPD'},
+    {id:'l1',cat:'Lighting',name:'6" LED Recessed',unit:'ea',price:22.00,labor:.50,desc:'IC rated canless'},
+    {id:'l2',cat:'Lighting',name:'4" LED Recessed',unit:'ea',price:18.00,labor:.45,desc:'IC rated canless'},
+    {id:'l3',cat:'Lighting',name:'2x4 LED Panel',unit:'ea',price:42.00,labor:.75,desc:'Commercial'},
+    {id:'l4',cat:'Lighting',name:'4ft LED Strip',unit:'ea',price:28.00,labor:.40,desc:'Utility/garage'},
+    {id:'l5',cat:'Lighting',name:'LED Flood Light',unit:'ea',price:35.00,labor:.60,desc:'Exterior security'},
+    {id:'l6',cat:'Lighting',name:'Ceiling Fan w/Light',unit:'ea',price:85.00,labor:1.50,desc:'52" fan'},
+    {id:'l7',cat:'Lighting',name:'Under Cabinet LED',unit:'ft',price:8.50,labor:.15,desc:'LED tape'},
+    {id:'l8',cat:'Lighting',name:'Pendant Outlet',unit:'ea',price:12.00,labor:.50,desc:'Hanging fixture'},
+    {id:'l9',cat:'Lighting',name:'Track Lighting Kit',unit:'ea',price:65.00,labor:1.0,desc:'4-head track'},
+    {id:'l10',cat:'Lighting',name:'Landscape Light',unit:'ea',price:28.00,labor:.40,desc:'Low voltage LED'},
+    {id:'lv1',cat:'Low Voltage',name:'Cat6 Cable',unit:'ft',price:.35,labor:.02,desc:'Network/data'},
+    {id:'lv2',cat:'Low Voltage',name:'RG6 Coax',unit:'ft',price:.25,labor:.02,desc:'Cable/satellite'},
+    {id:'lv3',cat:'Low Voltage',name:'Cat6 Keystone Jack',unit:'ea',price:4.50,labor:.20,desc:'Data outlet'},
+    {id:'lv4',cat:'Low Voltage',name:'Coax Plate',unit:'ea',price:3.50,labor:.15,desc:'Cable outlet'},
+    {id:'lv5',cat:'Low Voltage',name:'Smoke Detector',unit:'ea',price:25.00,labor:.50,desc:'Hardwired'},
+    {id:'lv6',cat:'Low Voltage',name:'CO Detector',unit:'ea',price:32.00,labor:.50,desc:'Carbon monoxide'},
+    {id:'lv7',cat:'Low Voltage',name:'Doorbell Transformer',unit:'ea',price:15.00,labor:.50,desc:'16V'},
+    {id:'lv8',cat:'Low Voltage',name:'Video Doorbell Wire',unit:'ft',price:.18,labor:.02,desc:'18/2 thermostat'},
+    {id:'lv9',cat:'Low Voltage',name:'Smart Thermostat Wire',unit:'ft',price:.30,labor:.02,desc:'18/5 cable'},
+    {id:'m1',cat:'Misc',name:'Wire Nuts (100ct)',unit:'ea',price:8.00,labor:0,desc:'Twist-on'},
+    {id:'m2',cat:'Misc',name:'Electrical Tape (10pk)',unit:'ea',price:12.00,labor:0,desc:'Assorted'},
+    {id:'m3',cat:'Misc',name:'Cable Staples (200ct)',unit:'ea',price:6.50,labor:0,desc:'NM support'},
+    {id:'m4',cat:'Misc',name:'Ground Clamp',unit:'ea',price:3.50,labor:.10,desc:'Pipe/rod'},
+    {id:'m5',cat:'Misc',name:'Permit & Inspection',unit:'ea',price:350.00,labor:0,desc:'Municipal'},
+    {id:'m6',cat:'Misc',name:'Dumpster/Cleanup',unit:'ea',price:200.00,labor:0,desc:'Job cleanup'},
+    {id:'m7',cat:'Misc',name:'Fire Caulk',unit:'ea',price:12.00,labor:.10,desc:'Firestop sealant'},
+    {id:'m8',cat:'Misc',name:'Panel Labels',unit:'ea',price:8.00,labor:.25,desc:'Circuit directory'},
+  ],
+
+  templates: [
+    { name:'Kitchen Remodel', desc:'20A circuits, GFCI, under-cabinet LED, range circuit', items:[{id:'w2',qty:200},{id:'w4',qty:40},{id:'d3',qty:4},{id:'d2',qty:6},{id:'l1',qty:8},{id:'l7',qty:12},{id:'d7',qty:2},{id:'p3',qty:4},{id:'p6',qty:1},{id:'b1',qty:10},{id:'d9',qty:10},{id:'m1',qty:1}] },
+    { name:'Bathroom Remodel', desc:'GFCI, exhaust fan, vanity lights, heated floor', items:[{id:'w2',qty:80},{id:'d3',qty:2},{id:'d5',qty:2},{id:'l1',qty:4},{id:'b1',qty:4},{id:'d9',qty:4},{id:'p3',qty:2},{id:'m1',qty:1}] },
+    { name:'200A Panel Upgrade', desc:'New panel, main breaker, grounding, surge protection', items:[{id:'p1',qty:1},{id:'p7',qty:1},{id:'p8',qty:2},{id:'p10',qty:1},{id:'w11',qty:20},{id:'p3',qty:12},{id:'p4',qty:6},{id:'p5',qty:2},{id:'m5',qty:1},{id:'m8',qty:1}] },
+    { name:'Whole House Rewire', desc:'Full residential rewire, panel, devices, lighting', items:[{id:'p1',qty:1},{id:'p7',qty:1},{id:'p8',qty:2},{id:'w2',qty:1000},{id:'w1',qty:500},{id:'w4',qty:40},{id:'w3',qty:60},{id:'d1',qty:30},{id:'d3',qty:8},{id:'d5',qty:15},{id:'d6',qty:6},{id:'d7',qty:4},{id:'l1',qty:20},{id:'l6',qty:3},{id:'p3',qty:15},{id:'p4',qty:10},{id:'p5',qty:3},{id:'p6',qty:1},{id:'b3',qty:50},{id:'b6',qty:20},{id:'lv5',qty:6},{id:'lv6',qty:2},{id:'d9',qty:50},{id:'m1',qty:3},{id:'m3',qty:3},{id:'m5',qty:1}] },
+    { name:'EV Charger Install', desc:'Level 2 charger circuit, 50A/240V', items:[{id:'w4',qty:50},{id:'c2',qty:5},{id:'p6',qty:1},{id:'b7',qty:1},{id:'m5',qty:1}] },
+    { name:'Outdoor Lighting', desc:'Landscape and security lighting', items:[{id:'w2',qty:200},{id:'l5',qty:4},{id:'l10',qty:8},{id:'d5',qty:2},{id:'b7',qty:4},{id:'p3',qty:2},{id:'m1',qty:1}] },
+  ],
+
+  checklist: [
+    {section:'Rough Inspection', items:[
+      {text:'All boxes secured and at correct height',ref:'NEC 314.23'},
+      {text:'NM cable properly supported within 12" of box, every 4.5ft',ref:'NEC 334.30'},
+      {text:'All splices and connections inside boxes',ref:'NEC 300.15'},
+      {text:'AFCI protection for bedrooms and required areas',ref:'NEC 210.12'},
+      {text:'GFCI protection for bathrooms, kitchen, garage, outdoor',ref:'NEC 210.8'},
+      {text:'Proper wire size for circuit ampacity',ref:'NEC 310.16'},
+      {text:'Grounding conductor in all circuits',ref:'NEC 250.118'},
+      {text:'Box fill calculations within limits',ref:'NEC 314.16'},
+      {text:'Conduit fill within 40% for 3+ conductors',ref:'NEC Ch.9 T.1'},
+      {text:'Fire-rated wall penetrations sealed',ref:'NEC 300.21'},
+      {text:'Bathroom exhaust fan on GFCI circuit',ref:'NEC 210.8(A)'},
+      {text:'Smoke detector locations per code',ref:'NEC 760'},
+    ]},
+    {section:'Final Inspection', items:[
+      {text:'All cover plates installed',ref:'NEC 406.6'},
+      {text:'Panel directory completed and legible',ref:'NEC 408.4'},
+      {text:'All receptacles properly polarized and grounded',ref:'NEC 406.4'},
+      {text:'GFCI devices tested and functional',ref:'NEC 210.8'},
+      {text:'AFCI devices tested and functional',ref:'NEC 210.12'},
+      {text:'Smoke/CO detectors tested and interconnected',ref:'NEC 760'},
+      {text:'All unused openings in panels covered',ref:'NEC 408.7'},
+      {text:'Equipment grounding verified',ref:'NEC 250.4'},
+      {text:'Outdoor receptacles have weatherproof covers',ref:'NEC 406.9'},
+      {text:'Tamper-resistant receptacles where required',ref:'NEC 406.12'},
+      {text:'Arc-fault breakers hold under load',ref:'NEC 210.12'},
+      {text:'Proper clearances around panel (30"W x 36"D x 78"H)',ref:'NEC 110.26'},
+    ]},
+  ],
+
+  necData: {
+    ampacity: { copper:{14:15,12:20,10:30,8:40,6:55,4:70,3:85,2:95,1:110,'1/0':125,'2/0':145,'3/0':165,'4/0':195,250:215,300:240,350:260,400:280,500:320}, aluminum:{12:15,10:25,8:30,6:40,4:55,3:65,2:75,1:85,'1/0':100,'2/0':115,'3/0':130,'4/0':150,250:170,300:190,350:210,400:225,500:260} },
+    resistance:{14:3.14,12:1.98,10:1.24,8:.778,6:.491,4:.308,3:.245,2:.194,1:.154,'1/0':.122,'2/0':.0967,'3/0':.0766,'4/0':.0608},
+    wireArea:{14:.0097,12:.0133,10:.0211,8:.0366,6:.0507},
+    conduitArea:{ emt:{.5:.304,.75:.533,1:.864,1.25:1.496,1.5:2.036,2:3.356,2.5:5.858,3:8.846,4:15.68}, 'pvc-40':{.5:.285,.75:.508,1:.832,1.25:1.453,1.5:1.986,2:3.291,2.5:5.621,3:8.091,4:14.57}, rigid:{.5:.314,.75:.549,1:.887,1.25:1.526,1.5:2.071,2:3.408,2.5:5.858,3:8.846,4:15.68} },
+    fillPercent:{1:53,2:31,3:40,more:40}
+  },
+
+  init() {
+    this.loadState();
+    this.showDraftDetails();
+    this.renderDashboard();
+    this.renderMaterialTabs();
+    this.renderMaterials();
+    this.updateEstimateSummary();
+    this.initFloorPlan();
+    this.updateDashboardDate();
+    this.loadSettingsToForm();
+    this.renderChecklist();
+    this.renderTimerProjects();
+    this.renderTimeLogs();
+    const dz=document.getElementById('drop-zone');
+    if(dz){
+      dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
+      dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
+      dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');this.previewPhoto(e.dataTransfer.files[0]);});
+    }
+  },
+
+  loadState() {
+    try {
+      const s=localStorage.getItem('electro-ai-v2');
+      if(s){ const d=JSON.parse(s); if(d.settings)Object.assign(this.settings,d.settings); if(d.projects)this.projects=d.projects; if(d.estimate)this.estimate=d.estimate; if(d.timeLogs)this.timeLogs=d.timeLogs; if(d.savedEstimates)this.savedEstimates=d.savedEstimates; if(d.checklistState)this._checklistState=d.checklistState; if(d.floorPlan){this.floorPlan.elements=d.floorPlan.elements||[];this.floorPlan.title=d.floorPlan.title||'';} }
+    }catch(e){}
+    if(!this.projects.length){
+      this.projects=[
+        {id:'p1',name:'Smith Residence Rewire',client:'John Smith',address:'123 Oak St',type:'residential',status:'active',amount:8450,created:'2026-10-28'},
+        {id:'p2',name:'Sunrise Bakery TI',client:'Maria Lopez',address:'456 Main Ave',type:'commercial',status:'active',amount:22300,created:'2026-10-15'},
+        {id:'p3',name:'Park Tower Unit 4B',client:'Chen Holdings',address:'789 Park Blvd #4B',type:'renovation',status:'pending',amount:5200,created:'2026-11-01'},
+      ];
+    }
+    if(!this._checklistState) this._checklistState={};
+  },
+  showDraftDetails(){
+    document.getElementById('est-project-name').value = this.estimate.projectName ?? 'Sample Estimate';
+    document.getElementById('est-client').value = this.estimate.client ?? '';
+  },
+  saveState(){
+    this.estimate.projectName = document.getElementById('est-project-name').value;
+    this.estimate.client = document.getElementById('est-client').value;
+    try {
+      localStorage.setItem('electro-ai-v2',JSON.stringify({
+        settings:this.settings, projects:this.projects, estimate:this.estimate,
+        timeLogs:this.timeLogs, savedEstimates:this.savedEstimates, checklistState:this._checklistState,
+        floorPlan:{elements:this.floorPlan.elements,title:this.floorPlan.title}
+      }));
+      return true;
+    } catch(error) {
+      this.toast('Browser storage is unavailable. Changes could not be saved.');
+      return false;
+    }
+  },
+
+  navigate(page){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const el=document.getElementById('page-'+page); if(el)el.classList.add('active');
+    const nav=document.querySelector(`.nav-item[data-page="${page}"]`); if(nav)nav.classList.add('active');
+    if(this.currentPage==='scanner'&&page!=='scanner')this.closeCamera();
+    this.currentPage=page;
+    if(page==='floorplan')this.resizeCanvas();
+    if(page==='scanner')this.resetScanner();
+    if(page==='projects')this.renderProjects();
+    window.scrollTo(0,0);
+  },
+
+  updateDashboardDate(){
+    const d=new Date(); document.getElementById('dashboard-date').textContent=d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const hr=d.getHours(); const k=hr<12?'greeting_am':hr<17?'greeting_pm':'greeting_ev';
+    document.getElementById('greeting').textContent=this.t(k);
+  },
+  renderDashboard(){
+    const stats=document.getElementById('dashboard-stats');
+    const active=this.projects.filter(p=>p.status==='active').length;
+    const total=this.projects.reduce((s,p)=>s+(p.amount||0),0);
+    stats.innerHTML=`<div class="stat-card"><div class="stat-value">${this.projects.length}</div><div class="stat-label">${this.t('projects')}</div></div><div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">${this.t('active')}</div></div><div class="stat-card"><div class="stat-value">$${this.fmtK(total)}</div><div class="stat-label">${this.t('pipeline')}</div></div>`;
+    const list=document.getElementById('dashboard-projects');
+    const recent=this.projects.slice(0,4);
+    if(!recent.length){list.innerHTML='<div class="empty-state"><i class="fa-solid fa-folder-open"></i><h3>No projects yet</h3></div>';return;}
+    list.innerHTML=recent.map(p=>this.projectCardHTML(p)).join('');
+  },
+  fmtK(n){return n>=1000?(n/1000).toFixed(1)+'k':n.toLocaleString();},
+  projectCardHTML(p){
+    const icons={residential:'fa-house',commercial:'fa-building',industrial:'fa-industry',renovation:'fa-hammer'};
+    const badge=p.status==='active'?'badge-active':p.status==='completed'?'badge-completed':'badge-pending';
+    return `<div class="project-card" onclick="App.openProject('${p.id}')"><div class="project-icon"><i class="fa-solid ${icons[p.type]||'fa-folder'}"></i></div><div class="project-info"><div class="project-name">${this.esc(p.name)}</div><div class="project-meta">${this.esc(p.client)} &middot; <span class="badge ${badge}">${p.status}</span></div></div><div class="project-amount">$${(p.amount||0).toLocaleString()}</div></div>`;
+  },
+
+  renderProjects(filter=''){
+    const list=document.getElementById('projects-list'); let f=this.projects;
+    if(filter){const q=filter.toLowerCase();f=f.filter(p=>p.name.toLowerCase().includes(q)||p.client.toLowerCase().includes(q));}
+    list.innerHTML=f.length?f.map(p=>this.projectCardHTML(p)).join(''):'<div class="empty-state"><i class="fa-solid fa-search"></i><h3>No matches</h3></div>';
+  },
+  filterProjects(v){this.renderProjects(v);},
+  showNewProject(){document.getElementById('modal-new-project').hidden=false;},
+  createProject(){
+    const name=document.getElementById('np-name').value.trim();if(!name){this.toast('Enter a project name');return;}
+    this.projects.unshift({id:'p'+Date.now(),name,client:document.getElementById('np-client').value.trim(),address:document.getElementById('np-address').value.trim(),type:document.getElementById('np-type').value,status:'pending',amount:0,created:new Date().toISOString().slice(0,10)});
+    const saved=this.saveState();this.closeModal('modal-new-project');this.renderProjects();this.renderDashboard();this.renderTimerProjects();if(saved)this.toast('Project created');
+    ['np-name','np-client','np-address'].forEach(id=>document.getElementById(id).value='');
+  },
+  openProject(id){const p=this.projects.find(x=>x.id===id);if(!p)return;document.getElementById('est-project-name').value=p.name;document.getElementById('est-client').value=p.client||'';this.saveState();this.navigate('estimate');},
+
+  async openCamera(){
+    if(!navigator.mediaDevices?.getUserMedia){document.getElementById('camera-input').click();return;}
+    this.closeCamera();
+    const request = this._cameraRequest;
+    const panel = document.getElementById('camera-panel');
+    const video = document.getElementById('camera-video');
+    panel.hidden = false;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+      if(request !== this._cameraRequest){stream.getTracks().forEach(track=>track.stop());return;}
+      video.srcObject = stream;
+      await video.play();
+      if(request === this._cameraRequest)document.getElementById('camera-capture').disabled = false;
+    } catch(error) {
+      if(request !== this._cameraRequest)return;
+      this.closeCamera();
+      this.toast('Camera unavailable. Use Upload Job Site Photo to select an image.');
+    }
+  },
+  closeCamera(){
+    this._cameraRequest = (this._cameraRequest || 0) + 1;
+    const video = document.getElementById('camera-video');
+    video.srcObject?.getTracks().forEach(track=>track.stop());
+    video.srcObject = null;
+    document.getElementById('camera-panel').hidden = true;
+    document.getElementById('camera-capture').disabled = true;
+  },
+  capturePhoto(){
+    const video = document.getElementById('camera-video');
+    if(!video.videoWidth || !video.videoHeight)return;
+    const frame = document.createElement('canvas');
+    frame.width = video.videoWidth;
+    frame.height = video.videoHeight;
+    frame.getContext('2d').drawImage(video,0,0);
+    this.closeCamera();
+    this._scanRequest = (this._scanRequest || 0) + 1;
+    this.showScannerContent(frame.toDataURL('image/jpeg',0.9));
+  },
+  resetScanner(){
+    this.closeCamera();
+    this._scanRequest = (this._scanRequest || 0) + 1;
+    document.getElementById('scanner-upload').hidden = false;
+    document.getElementById('scanner-results').hidden = true;
+  },
+  previewPhoto(file){
+    if(!file)return;
+    this.closeCamera();
+    if(!file.type.startsWith('image/')){this.toast('Choose an image file');return;}
+    const request = this._scanRequest = (this._scanRequest || 0) + 1;
+    const reader = new FileReader();
+    reader.onerror = () => {if(request === this._scanRequest)this.toast('Unable to open this image');};
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = reader.onerror;
+      image.onload = () => {if(request === this._scanRequest)this.showScannerContent(reader.result);};
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  },
+  loadDemoScan(){this.resetScanner();this.showScannerContent();},
+  showScannerContent(photo){
+    const results = document.getElementById('scanner-results');
+    document.getElementById('scanner-upload').hidden = true;
+    results.hidden = false;
+    results.innerHTML = photo
+      ? '<h3>Job site photo preview</h3><img class="scan-preview" alt="Job site photo preview"><p class="scanner-desc">Add verified quantities in Estimate Builder.</p>'
+      : '<div class="card card-lg"><h3>Sample components</h3><p class="scanner-desc">Example quantities for demonstration only.</p><ul><li>1 main panel</li><li>12 duplex receptacles</li><li>4 GFCI receptacles</li><li>8 switches</li></ul></div>';
+    if(photo)results.querySelector('img').src = photo;
+    results.insertAdjacentHTML('beforeend', '<button class="btn btn-outline btn-full" style="margin-top:12px" onclick="App.resetScanner()">Back to Photo Scanner</button>');
+  },
+
+  renderMaterialTabs(){
+    const cats=[...new Set(this.materials.map(m=>m.cat))];
+    document.getElementById('material-tabs').innerHTML=`<button class="cat-tab active" onclick="App.selectCat('all')">All</button>`+cats.map(c=>`<button class="cat-tab" onclick="App.selectCat('${c}')">${c}</button>`).join('');
+    this._activeCat='all';
+  },
+  selectCat(cat){this._activeCat=cat;document.querySelectorAll('.cat-tab').forEach(t=>t.classList.toggle('active',(cat==='all'&&t.textContent==='All')||t.textContent===cat));this.renderMaterials();},
+  renderMaterials(filter=''){
+    let mats=this.materials; if(this._activeCat&&this._activeCat!=='all')mats=mats.filter(m=>m.cat===this._activeCat);
+    if(filter){const q=filter.toLowerCase();mats=mats.filter(m=>m.name.toLowerCase().includes(q)||m.desc.toLowerCase().includes(q));}
+    document.getElementById('material-list').innerHTML=mats.map(m=>{const inEst=this.estimate.items.find(i=>i.id===m.id);const qty=inEst?inEst.qty:0;
+    return `<div class="material-item"><div class="mat-info"><div class="mat-name">${m.name}</div><div class="mat-detail">${m.desc} &middot; $${m.price.toFixed(2)}/${m.unit}</div></div><div class="qty-control"><button onclick="App.adjustQty('${m.id}',-1)">&minus;</button><input type="number" value="${qty}" min="0" onchange="App.setQty('${m.id}',this.value)" id="qty-${m.id}"><button onclick="App.adjustQty('${m.id}',1)">+</button></div></div>`;}).join('');
+  },
+  filterMaterials(v){this.renderMaterials(v);},
+  adjustQty(id,d){const input=document.getElementById('qty-'+id);let v=parseInt(input.value)||0;v=Math.max(0,v+d);input.value=v;this.setQty(id,v);},
+  setQty(id,val){val=Math.max(0,parseInt(val)||0);const idx=this.estimate.items.findIndex(i=>i.id===id);if(val===0){if(idx>-1)this.estimate.items.splice(idx,1);}else{const mat=this.materials.find(m=>m.id===id);if(idx>-1)this.estimate.items[idx].qty=val;else if(mat)this.estimate.items.push({...mat,qty:val});}this.updateEstimateSummary();this.saveState();},
+  updateEstimateSummary(){
+    const el=document.getElementById('estimate-summary');if(!this.estimate.items.length){el.innerHTML='<p class="empty-state">Add materials to calculate your estimate.</p>';return;}
+    let mc=0,lh=0;this.estimate.items.forEach(i=>{mc+=i.price*i.qty;lh+=i.labor*i.qty;});
+    const mk=mc*(this.settings.markup/100),mt=mc+mk,lc=lh*this.settings.laborRate,sub=mt+lc,tax=sub*(this.settings.tax/100),tot=sub+tax;
+    el.innerHTML=`<div class="summary-box"><div class="summary-row"><span class="label">Materials (${this.estimate.items.length} items)</span><span class="value">$${mc.toFixed(2)}</span></div><div class="summary-row"><span class="label">Markup (${this.settings.markup}%)</span><span class="value">$${mk.toFixed(2)}</span></div><div class="summary-row"><span class="label">Labor (${lh.toFixed(1)}h &times; $${this.settings.laborRate})</span><span class="value">$${lc.toFixed(2)}</span></div><div class="summary-row"><span class="label">Tax (${this.settings.tax}%)</span><span class="value">$${tax.toFixed(2)}</span></div><div class="summary-row total"><span class="label">Total</span><span class="value">$${tot.toFixed(2)}</span></div></div>
+    <div class="estimate-actions"><button class="btn btn-outline btn-full" onclick="App.clearEstimate()"><i class="fa-solid fa-trash"></i> Clear</button><button class="btn btn-outline btn-full" onclick="App.saveEstimate()"><i class="fa-solid fa-save"></i> Save</button><button class="btn btn-accent btn-full" onclick="App.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button></div>`;
+  },
+  clearEstimate(){this.estimate.items=[];this.renderMaterials();this.updateEstimateSummary();if(this.saveState())this.toast('Estimate cleared');},
+
+  // ── TEMPLATES ──
+  showTemplates(){
+    document.getElementById('templates-list').innerHTML=this.templates.map((t,i)=>{
+      let cost=0;t.items.forEach(ti=>{const m=this.materials.find(x=>x.id===ti.id);if(m)cost+=m.price*ti.qty;});
+      return `<div class="template-card" onclick="App.loadTemplate(${i})"><h4><i class="fa-solid fa-layer-group" style="color:var(--accent)"></i> ${t.name}</h4><p>${t.desc}</p><div class="tpl-price">~$${cost.toFixed(0)} materials</div></div>`;
+    }).join('');
+    document.getElementById('modal-templates').hidden=false;
+  },
+  loadTemplate(idx){
+    const t=this.templates[idx];if(!t)return;
+    this.estimate.items=[];t.items.forEach(ti=>{const mat=this.materials.find(m=>m.id===ti.id);if(mat)this.estimate.items.push({...mat,qty:ti.qty});});
+    document.getElementById('est-project-name').value=t.name;
+    this.closeModal('modal-templates');this.navigate('estimate');this.renderMaterials();this.updateEstimateSummary();if(this.saveState())this.toast('Template loaded: '+t.name);
+  },
+
+  // ── ESTIMATE HISTORY ──
+  saveEstimate(){
+    if(!this.estimate.items.length){this.toast('Nothing to save');return;}
+    let mc=0,lh=0;this.estimate.items.forEach(i=>{mc+=i.price*i.qty;lh+=i.labor*i.qty;});
+    const mk=mc*(this.settings.markup/100),lc=lh*this.settings.laborRate,sub=mc+mk+lc,tax=sub*(this.settings.tax/100),tot=sub+tax;
+    this.savedEstimates.unshift({id:'e'+Date.now(),name:document.getElementById('est-project-name').value||'Untitled',client:document.getElementById('est-client').value,date:new Date().toISOString().slice(0,10),total:tot,items:this.estimate.items.map(item=>({...item}))});
+    if(this.saveState())this.toast('Estimate saved');
+  },
+  showHistory(){
+    const el=document.getElementById('history-list');
+    if(!this.savedEstimates.length){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><h3>No saved estimates</h3></div>';document.getElementById('modal-history').hidden=false;return;}
+    el.innerHTML=this.savedEstimates.map((e,i)=>`<button type="button" class="history-item" style="margin-bottom:8px" onclick="App.loadEstimate(${i})">
+      <span style="flex:1;min-width:0;overflow-wrap:anywhere">
+        <strong style="display:block">${this.esc(e.name)}</strong>
+        <span style="font-size:12px;color:var(--fg-tertiary)">${this.esc(e.client||'No client')} &middot; ${this.esc(e.date)}</span>
+      </span>
+      <strong style="color:var(--primary);font-family:var(--font-mono)">$${e.total.toFixed(2)}</strong>
+    </button>`).join('');
+    document.getElementById('modal-history').hidden=false;
+  },
+  loadEstimate(idx){
+    const e=this.savedEstimates[idx];if(!e)return;
+    this.estimate.items=e.items.map(item=>({...item}));document.getElementById('est-project-name').value=e.name;document.getElementById('est-client').value=e.client||'';
+    this.closeModal('modal-history');this.renderMaterials();this.updateEstimateSummary();if(this.saveState())this.toast('Estimate loaded');
+  },
+
+  // ── CHECKLIST ──
+  renderChecklist(){
+    const el=document.getElementById('checklist-container');
+    el.innerHTML=this.checklist.map(sec=>`<h3 style="font-size:15px;margin-bottom:12px;margin-top:16px"><i class="fa-solid fa-clipboard-check" style="color:var(--accent)"></i> ${sec.section}</h3>
+    ${sec.items.map((item,i)=>{const key=sec.section+'-'+i;const checked=this._checklistState[key];
+    return `<div class="checklist-item ${checked?'checked':''}"><input type="checkbox" ${checked?'checked':''} onchange="App.toggleCheck('${key}',this.checked)"><div><div class="cl-text">${item.text}</div><div class="cl-ref">${item.ref}</div></div></div>`;}).join('')}`).join('');
+  },
+  toggleCheck(key,val){this._checklistState[key]=val;this.saveState();const item=document.querySelector(`input[onchange*="${key}"]`);if(item)item.closest('.checklist-item').classList.toggle('checked',val);},
+
+  // ── TIMER ──
+  renderTimerProjects(){
+    const sel=document.getElementById('timer-project');if(!sel)return;
+    sel.innerHTML=this.projects.map(p=>`<option value="${p.id}">${this.esc(p.name)}</option>`).join('');
+  },
+  toggleTimer(){
+    if(this.timer.running){this.timer.running=false;clearInterval(this.timer.interval);document.getElementById('timer-start').innerHTML='<i class="fa-solid fa-play"></i> Start';}
+    else{this.timer.running=true;this.timer.interval=setInterval(()=>{this.timer.seconds++;this.updateTimerDisplay();},1000);document.getElementById('timer-start').innerHTML='<i class="fa-solid fa-pause"></i> Pause';}
+  },
+  resetTimer(){this.timer.running=false;clearInterval(this.timer.interval);this.timer.seconds=0;this.updateTimerDisplay();document.getElementById('timer-start').innerHTML='<i class="fa-solid fa-play"></i> Start';},
+  updateTimerDisplay(){const h=Math.floor(this.timer.seconds/3600),m=Math.floor((this.timer.seconds%3600)/60),s=this.timer.seconds%60;document.getElementById('timer-display').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},
+  logTime(){
+    if(this.timer.seconds<1){this.toast('Start the timer first');return;}
+    const proj=this.projects.find(p=>p.id===document.getElementById('timer-project').value);
+    this.timeLogs.unshift({id:'t'+Date.now(),project:proj?proj.name:'Unknown',seconds:this.timer.seconds,notes:document.getElementById('timer-notes').value,date:new Date().toISOString().slice(0,10)});
+    const saved=this.saveState();this.renderTimeLogs();this.resetTimer();document.getElementById('timer-notes').value='';if(saved)this.toast('Time logged');
+  },
+  renderTimeLogs(){
+    const el=document.getElementById('time-logs');if(!el)return;
+    if(!this.timeLogs.length){el.innerHTML='<div class="empty-state"><p>No time entries yet</p></div>';return;}
+    el.innerHTML=this.timeLogs.map(l=>{const h=Math.floor(l.seconds/3600),m=Math.floor((l.seconds%3600)/60);
+    return `<div class="history-item" style="margin-bottom:8px"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">${this.esc(l.project)}</div><div style="font-size:12px;color:var(--fg-tertiary)">${l.notes||'No notes'} &middot; ${l.date}</div></div><div style="font-weight:700;color:var(--primary);font-family:var(--font-mono)">${h}h ${m}m</div></div>`;}).join('');
+  },
+  clearTimeLogs(){this.timeLogs=[];const saved=this.saveState();this.renderTimeLogs();if(saved)this.toast('Time log cleared');},
+
+  // ── LOAD CALCULATOR (NEC 220) ──
+  calcLoad(){
+    const sqft=parseFloat(document.getElementById('lc-sqft').value)||2000;
+    const smallAppl=parseInt(document.getElementById('lc-small').value)||2;
+    const laundry=parseInt(document.getElementById('lc-laundry').value)||1;
+    let generalLighting=sqft*3;
+    let smallApplLoad=smallAppl*1500;
+    let laundryLoad=laundry*1500;
+    let subtotal=generalLighting+smallApplLoad+laundryLoad;
+    let demandGeneral=Math.min(subtotal,3000)+Math.max(0,(subtotal-3000))*0.35;
+    let fixedLoads=0;
+    const appliances=[{id:'lc-range',kw:8},{id:'lc-dryer',kw:5},{id:'lc-wh',kw:4.5},{id:'lc-ac',kw:5},{id:'lc-heat',kw:10},{id:'lc-dw',kw:1.5},{id:'lc-ev',kw:7.7}];
+    let acLoad=0,heatLoad=0;
+    appliances.forEach(a=>{if(document.getElementById(a.id).checked){if(a.id==='lc-ac')acLoad=a.kw*1000;else if(a.id==='lc-heat')heatLoad=a.kw*1000;else fixedLoads+=a.kw*1000;}});
+    const largerMotor=Math.max(acLoad,heatLoad);
+    const totalVA=demandGeneral+fixedLoads+largerMotor;
+    const amps240=totalVA/240;
+    let serviceSize=amps240<=100?100:amps240<=150?150:200;
+    if(amps240>200)serviceSize=400;
+    document.getElementById('lc-result').innerHTML=`<div class="nec-result"><div class="nec-result-title">LOAD CALCULATION &mdash; NEC 220</div>
+    <div class="nec-result-row"><span>General Lighting (${sqft} sq ft &times; 3 VA)</span><span class="val">${generalLighting.toLocaleString()} VA</span></div>
+    <div class="nec-result-row"><span>Small Appliance (${smallAppl} &times; 1500W)</span><span class="val">${smallApplLoad.toLocaleString()} VA</span></div>
+    <div class="nec-result-row"><span>Laundry (${laundry} &times; 1500W)</span><span class="val">${laundryLoad.toLocaleString()} VA</span></div>
+    <div class="nec-result-row"><span>Demand (3000 @ 100% + rest @ 35%)</span><span class="val">${demandGeneral.toFixed(0)} VA</span></div>
+    <div class="nec-result-row"><span>Fixed Appliances</span><span class="val">${fixedLoads.toLocaleString()} VA</span></div>
+    <div class="nec-result-row"><span>Larger of A/C or Heat</span><span class="val">${largerMotor.toLocaleString()} VA</span></div>
+    <div style="border-top:1px solid var(--accent);margin:8px 0;padding-top:8px">
+    <div class="nec-result-row"><span><strong>Total Demand</strong></span><span class="val"><strong>${totalVA.toFixed(0)} VA</strong></span></div>
+    <div class="nec-result-row"><span>Amps @ 240V</span><span class="val">${amps240.toFixed(1)}A</span></div>
+    <div class="nec-result-row"><span>Recommended Service</span><span class="val" style="font-size:16px">${serviceSize}A</span></div></div></div>`;
+  },
+
+  // ── NEC CALCULATORS ──
+  calcWireSize(){
+    const amps=parseFloat(document.getElementById('nec-amps').value),voltage=parseFloat(document.getElementById('nec-voltage').value),distance=parseFloat(document.getElementById('nec-distance').value),conductor=document.getElementById('nec-conductor').value;
+    if(!amps||!distance)return;const derated=amps*1.25,table=this.necData.ampacity[conductor];let wireSize=null;const sizes=Object.keys(table);
+    for(const size of sizes){if(table[size]>=derated){wireSize=size;break;}}
+    let vdWire=wireSize;
+    if(wireSize&&this.necData.resistance[wireSize]){const vd=(2*distance*amps*this.necData.resistance[wireSize])/1000;if((vd/voltage)*100>3){const si=sizes.indexOf(wireSize);for(let i=si+1;i<sizes.length;i++){if(this.necData.resistance[sizes[i]]){const nv=(2*distance*amps*this.necData.resistance[sizes[i]])/1000;if((nv/voltage)*100<=3){vdWire=sizes[i];break;}}}}}
+    const fw=vdWire||wireSize||'Exceeds table',res=this.necData.resistance[fw],av=res?((2*distance*amps*res)/1000):0,vp=voltage?((av/voltage)*100):0;
+    document.getElementById('nec-wire-result').innerHTML=`<div class="nec-result"><div class="nec-result-title">RESULT &mdash; NEC 310.16</div><div class="nec-result-row"><span>Required (125%)</span><span class="val">${derated.toFixed(0)}A</span></div><div class="nec-result-row"><span>Wire Size</span><span class="val">${fw} AWG</span></div><div class="nec-result-row"><span>Ampacity</span><span class="val">${table[fw]||'--'}A</span></div><div class="nec-result-row"><span>Voltage Drop</span><span class="val">${av.toFixed(2)}V (${vp.toFixed(1)}%)</span></div><div class="nec-result-row"><span>Status</span><span class="val" style="color:${vp<=3?'var(--success)':'var(--danger)'}">${vp<=3?'✓ Compliant':'✗ Exceeds 3%'}</span></div>${wireSize!==vdWire?`<div style="margin-top:8px;font-size:12px;color:var(--warning)">⚠ Upsized from ${wireSize} to ${vdWire} AWG for voltage drop</div>`:''}</div>`;
+  },
+  calcVoltageDrop(){
+    const amps=parseFloat(document.getElementById('vd-amps').value),wire=document.getElementById('vd-wire').value,dist=parseFloat(document.getElementById('vd-distance').value),volts=parseFloat(document.getElementById('vd-voltage').value);
+    if(!amps||!dist||!volts)return;const res=this.necData.resistance[wire];if(!res)return;
+    const vd=(2*dist*amps*res)/1000,vp=(vd/volts)*100,ev=volts-vd;
+    document.getElementById('vd-result').innerHTML=`<div class="nec-result"><div class="nec-result-title">VOLTAGE DROP</div><div class="nec-result-row"><span>Drop</span><span class="val">${vd.toFixed(2)}V</span></div><div class="nec-result-row"><span>Percentage</span><span class="val" style="color:${vp<=3?'var(--success)':vp<=5?'var(--warning)':'var(--danger)'}">${vp.toFixed(2)}%</span></div><div class="nec-result-row"><span>At Load</span><span class="val">${ev.toFixed(1)}V</span></div><div class="nec-result-row"><span>Branch (&le;3%)</span><span class="val" style="color:${vp<=3?'var(--success)':'var(--danger)'}">${vp<=3?'✓ Pass':'✗ Fail'}</span></div><div class="nec-result-row"><span>Combined (&le;5%)</span><span class="val" style="color:${vp<=5?'var(--success)':'var(--danger)'}">${vp<=5?'✓ Pass':'✗ Fail'}</span></div></div>`;
+  },
+  calcConduitFill(){
+    const conduit=document.getElementById('cf-conduit').value,size=document.getElementById('cf-size').value,ca=this.necData.conduitArea[conduit]?.[size];if(!ca)return;
+    let twa=0,wc=0;document.querySelectorAll('#cf-wires .form-row').forEach(row=>{const ws=row.querySelector('.cf-wire-size').value,qty=parseInt(row.querySelector('.cf-wire-qty').value)||0,area=this.necData.wireArea[ws]||0;twa+=area*qty;wc+=qty;});
+    const mf=wc<=1?53:wc===2?31:40,fp=(twa/ca)*100;
+    document.getElementById('cf-result').innerHTML=`<div class="nec-result"><div class="nec-result-title">CONDUIT FILL &mdash; NEC Ch.9</div><div class="nec-result-row"><span>Conduit Area</span><span class="val">${ca.toFixed(3)} in&sup2;</span></div><div class="nec-result-row"><span>Wire Area</span><span class="val">${twa.toFixed(4)} in&sup2;</span></div><div class="nec-result-row"><span>Fill</span><span class="val" style="color:${fp<=mf?'var(--success)':'var(--danger)'}">${fp.toFixed(1)}%</span></div><div class="nec-result-row"><span>Max (${wc} wires)</span><span class="val">${mf}%</span></div><div class="nec-result-row"><span>Status</span><span class="val" style="color:${fp<=mf?'var(--success)':'var(--danger)'}">${fp<=mf?'✓ OK':'✗ Over Fill'}</span></div></div>`;
+  },
+  addConduitWire(){const c=document.getElementById('cf-wires'),r=document.createElement('div');r.className='form-row';r.style.marginBottom='8px';r.innerHTML='<div class="form-group" style="margin-bottom:0"><select class="cf-wire-size"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option></select></div><div class="form-group" style="margin-bottom:0"><input type="number" class="cf-wire-qty" value="1" min="1"></div>';c.appendChild(r);},
+
+  // ── PDF ──
+  exportPDF(){
+    if(!this.estimate.items.length){this.toast('Add items first');return;}
+    if(!window.jspdf?.jsPDF){this.toast('PDF export is unavailable. Check your connection and reload.');return;}
+    const{jsPDF}=window.jspdf;const doc=new jsPDF();const w=doc.internal.pageSize.width;let y=20;
+    doc.setFillColor(30,58,95);doc.rect(0,0,w,45,'F');
+    doc.setTextColor(255);doc.setFontSize(24);doc.setFont('helvetica','bold');doc.text('ELECTRO AI',14,20);
+    doc.setFontSize(10);doc.setFont('helvetica','normal');doc.text('Professional Electrical Estimate',14,28);
+    doc.text(this.settings.company+(this.settings.license?' · Lic# '+this.settings.license:''),14,35);
+    doc.text('Date: '+new Date().toLocaleDateString('en-US'),w-14,28,{align:'right'});
+    y=55;
+    doc.setTextColor(30,58,95);doc.setFontSize(16);doc.setFont('helvetica','bold');
+    doc.text(document.getElementById('est-project-name').value||'Estimate',14,y);y+=7;
+    const client=document.getElementById('est-client').value;
+    if(client){doc.setTextColor(100);doc.setFontSize(10);doc.setFont('helvetica','normal');doc.text('Client: '+client,14,y);y+=7;}
+    y+=3;
+    doc.setFillColor(240,238,233);doc.rect(14,y,w-28,8,'F');
+    doc.setTextColor(60);doc.setFontSize(8);doc.setFont('helvetica','bold');
+    doc.text('ITEM',16,y+5.5);doc.text('QTY',110,y+5.5);doc.text('UNIT $',130,y+5.5);doc.text('LABOR',152,y+5.5);doc.text('TOTAL',175,y+5.5);y+=12;
+    let mc=0,lh=0;const cats={};this.estimate.items.forEach(i=>{if(!cats[i.cat])cats[i.cat]=[];cats[i.cat].push(i);});
+    doc.setFont('helvetica','normal');doc.setTextColor(40);
+    Object.entries(cats).forEach(([cat,items])=>{
+      if(y>265){doc.addPage();y=20;}
+      doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(192,116,40);doc.text(cat.toUpperCase(),16,y);y+=6;
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(40);
+      items.forEach(i=>{if(y>275){doc.addPage();y=20;}const lt=i.price*i.qty,ll=i.labor*i.qty;mc+=lt;lh+=ll;
+      doc.text(i.name,16,y);doc.text(String(i.qty),112,y);doc.text('$'+i.price.toFixed(2),130,y);doc.text(ll.toFixed(1)+'h',152,y);doc.text('$'+lt.toFixed(2),175,y);y+=5;});y+=3;
+    });
+    y+=5;if(y>240){doc.addPage();y=20;}doc.setDrawColor(200);doc.line(120,y,w-14,y);y+=8;
+    const mk=mc*(this.settings.markup/100),mt=mc+mk,lc=lh*this.settings.laborRate,sub=mt+lc,tax=sub*(this.settings.tax/100),tot=sub+tax;
+    doc.setFontSize(9);const ar=(l,v)=>{doc.setFont('helvetica','normal');doc.setTextColor(100);doc.text(l,120,y);doc.setTextColor(40);doc.setFont('helvetica','bold');doc.text('$'+v.toFixed(2),175,y);y+=6;};
+    ar('Materials',mc);ar('Markup ('+this.settings.markup+'%)',mk);ar('Labor ('+lh.toFixed(1)+' hrs)',lc);ar('Tax ('+this.settings.tax+'%)',tax);
+    y+=2;doc.setFillColor(30,58,95);doc.rect(118,y-4,w-132,10,'F');doc.setTextColor(255);doc.setFontSize(11);doc.text('TOTAL',122,y+3);doc.text('$'+tot.toFixed(2),175,y+3);
+    doc.setTextColor(150);doc.setFontSize(7);doc.setFont('helvetica','normal');doc.text('Valid 30 days. Generated by Electro AI.',14,285);
+    const filename = (document.getElementById('est-project-name').value.trim() || 'Estimate')
+      .replace(/[<>:"/\\|?*]/g,'-').slice(0,100);
+    doc.save(filename + '.pdf');
+    this.toast('PDF downloaded');
+  },
+
+  // ── FLOOR PLAN ──
+  initFloorPlan(){
+    const canvas = document.getElementById('fp-canvas');
+    const wrap = document.getElementById('fp-canvas-wrap');
+    const plan = this.floorPlan;
+    this.fpCtx = canvas.getContext('2d');
+    document.getElementById('fp-title').value = plan.title;
+    this.setFPTool('select');
+    this.resizeCanvas();
+    const point = event => {
+      const rect = canvas.getBoundingClientRect();
+      const snap = (value, limit) => Math.max(20,Math.min(limit-20,Math.round(value/20)*20));
+      return {x:snap((event.clientX-rect.left)*canvas.width/rect.width,canvas.width),
+        y:snap((event.clientY-rect.top)*canvas.height/rect.height,canvas.height)};
+    };
+    let drag;
+    const segment = (from,to,tool) => tool==='room'
+      ? {type:tool,x:from.x,y:from.y,w:to.x-from.x,h:to.y-from.y}
+      : {type:tool,x1:from.x,y1:from.y,x2:to.x,y2:to.y};
+    canvas.addEventListener('pointerdown',event=>{
+      if(event.button!==0 || drag)return;
+      const tool = plan.tool;
+      const pos = point(event);
+      if(tool==='text'){
+        const label = window.prompt('Drawing label','');
+        if(label?.trim())this.addFPElement({type:'text',text:label.trim().slice(0,100),...pos});
+        return;
+      }
+      if(tool==='symbol'){this.addFPElement({type:'symbol',symbol:plan.symbol,...pos});return;}
+      if(tool==='select' && event.pointerType==='touch')return;
+      canvas.setPointerCapture(event.pointerId);
+      drag = {id:event.pointerId,tool,pos,x:event.clientX,y:event.clientY,left:wrap.scrollLeft,top:wrap.scrollTop};
+    });
+    canvas.addEventListener('pointermove',event=>{
+      if(drag?.id!==event.pointerId)return;
+      if(drag.tool==='select'){
+        wrap.scrollLeft = drag.left + drag.x - event.clientX;
+        wrap.scrollTop = drag.top + drag.y - event.clientY;
+      }else{
+        this.drawFloorPlan(false,segment(drag.pos,point(event),drag.tool));
+      }
+    });
+    canvas.addEventListener('pointerup',event=>{
+      if(drag?.id!==event.pointerId)return;
+      const {pos,tool} = drag;
+      drag = null;
+      const end = point(event);
+      const valid = tool==='room' ? end.x!==pos.x && end.y!==pos.y : end.x!==pos.x || end.y!==pos.y;
+      if(tool!=='select' && valid)this.addFPElement(segment(pos,end,tool));
+      else this.drawFloorPlan();
+    });
+    canvas.addEventListener('lostpointercapture',()=>{if(drag){drag=null;this.drawFloorPlan();}});
+    window.addEventListener('afterprint',()=>document.body.classList.remove('fp-printing'));
+    window.addEventListener('pagehide',()=>this.closeCamera());
+  },
+  addFPElement(element){
+    this.floorPlan.elements.push(element);
+    this.drawFloorPlan();
+    this.saveState();
+  },
+  resizeCanvas(){
+    const canvas = document.getElementById('fp-canvas');
+    canvas.style.width = canvas.width*this.floorPlan.zoom + 'px';
+    canvas.style.height = canvas.height*this.floorPlan.zoom + 'px';
+    this.drawFloorPlan();
+  },
+  fitFloorPlan(){
+    const wrap = document.getElementById('fp-canvas-wrap');
+    const canvas = document.getElementById('fp-canvas');
+    this.floorPlan.zoom = Math.min(wrap.clientWidth/canvas.width,wrap.clientHeight/canvas.height);
+    this.resizeCanvas();
+  },
+  zoomFloorPlan(step){
+    this.floorPlan.zoom = Math.max(0.12,Math.min(2,this.floorPlan.zoom+step));
+    this.resizeCanvas();
+  },
+  async printFloorPlan(){
+    if(!this.floorPlan.elements.length){this.toast('Draw something before printing');return;}
+    const sheet = document.getElementById('fp-print');
+    sheet.querySelector('h1').textContent = this.floorPlan.title.trim() || 'Electrical plan';
+    const image = sheet.querySelector('img');
+    this.drawFloorPlan(true);
+    image.src = document.getElementById('fp-canvas').toDataURL('image/png');
+    this.drawFloorPlan();
+    try{
+      await image.decode();
+      document.body.classList.add('fp-printing');
+      window.print();
+    }catch(error){
+      document.body.classList.remove('fp-printing');
+      this.toast('Unable to open print preview');
+    }
+  },
+  drawFloorPlan(print=false,preview){
+    const c=document.getElementById('fp-canvas'),ctx=this.fpCtx;if(!ctx)return;const w=c.width,h=c.height;
+    const s=getComputedStyle(document.documentElement),bg=s.getPropertyValue('--bg-surface').trim()||'#fff',bl=s.getPropertyValue('--border-light').trim()||'#eee',fg=s.getPropertyValue('--fg').trim()||'#1a1d23',pr=s.getPropertyValue('--primary').trim()||'#1e3a5f',ac=s.getPropertyValue('--accent').trim()||'#c07428';
+    ctx.fillStyle=print?"#fff":bg;ctx.fillRect(0,0,w,h);ctx.strokeStyle=print?"#d2d9df":bl;ctx.lineWidth=.5;for(let x=0;x<w;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}for(let y=0;y<h;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+    const ink = print ? '#1a1d23' : fg;
+    const elements = preview ? [...this.floorPlan.elements,preview] : this.floorPlan.elements;
+    elements.forEach(el=>{ctx.save();if(el===preview)ctx.globalAlpha=0.5;if(el.type==='room'){ctx.strokeStyle=print?"#203850":pr;ctx.lineWidth=3;ctx.strokeRect(el.x,el.y,el.w,el.h);ctx.fillStyle='rgba(30,58,95,.04)';ctx.fillRect(el.x,el.y,el.w,el.h);ctx.fillStyle=ink;ctx.font='11px IBM Plex Mono,monospace';ctx.textAlign='center';ctx.fillText(`${Math.abs(el.w/20).toFixed(0)}' × ${Math.abs(el.h/20).toFixed(0)}'`,el.x+el.w/2,el.y+el.h/2+4);}else if(['wall','wire','measure'].includes(el.type)){ctx.strokeStyle=el.type==='wire'?(print?'#146056':ac):(print?'#203850':pr);ctx.lineWidth=el.type==='wall'?4:el.type==='wire'?3:1.5;if(el.type==='measure')ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(el.x1,el.y1);ctx.lineTo(el.x2,el.y2);ctx.stroke();const d=Math.sqrt((el.x2-el.x1)**2+(el.y2-el.y1)**2)/20;ctx.fillStyle=ink;ctx.font='10px IBM Plex Mono,monospace';ctx.textAlign='center';if(el.type!=='wire')ctx.fillText(`${d.toFixed(1)}'`,(el.x1+el.x2)/2,(el.y1+el.y2)/2-8);}else if(el.type==='symbol'){this.drawSymbol(ctx,el.symbol,el.x,el.y,print?"#354d66":ac,ink);}else if(el.type==='text'){ctx.fillStyle=ink;ctx.font='bold 14px Plus Jakarta Sans,sans-serif';ctx.textAlign='center';ctx.fillText(el.text,el.x,el.y);}ctx.restore();});
+  },
+  drawSymbol(ctx,type,x,y,ac,fg){ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fillStyle=ac;ctx.fill();ctx.strokeStyle=fg;ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';const lb={outlet:'⏚',switch:'S',light:'☀',panel:'P',gfci:'G',smoke:'⚠',fan:'F',data:'D'};ctx.fillText(lb[type]||'?',x,y);ctx.fillStyle=fg;ctx.font='9px IBM Plex Sans,sans-serif';ctx.fillText(type,x,y+20);},
+  setFPTool(t){this.floorPlan.tool=t;document.getElementById('fp-canvas').toggleAttribute('data-pan',t==='select');document.querySelectorAll('.fp-tool[data-tool]').forEach(el=>el.classList.toggle('active',el.dataset.tool===t));document.getElementById('fp-symbols').style.display=t==='symbol'?'flex':'none';},
+  setFPSymbol(s){this.floorPlan.symbol=s;this.setFPTool('symbol');document.querySelectorAll('.fp-tool[data-tool]').forEach(el=>el.classList.toggle('active',el.dataset.tool==='symbol'));document.querySelectorAll('.fp-symbol').forEach(el=>el.classList.toggle('active',el.dataset.symbol===s));document.getElementById('fp-symbols').style.display='flex';},
+  undoFP(){if(this.floorPlan.elements.length){this.floorPlan.elements.pop();this.drawFloorPlan();this.saveState();}},
+  clearFloorPlan(){if(!this.floorPlan.elements.length || !window.confirm('Clear this drawing?'))return;this.floorPlan.elements=[];this.drawFloorPlan();if(this.saveState())this.toast('Floor plan cleared');},
+
+  // ── SETTINGS ──
+  downloadBackup(){
+    const data = JSON.stringify({
+      settings:this.settings, projects:this.projects, estimate:this.estimate,
+      timeLogs:this.timeLogs, savedEstimates:this.savedEstimates, checklistState:this._checklistState,
+        floorPlan:{elements:this.floorPlan.elements,title:this.floorPlan.title}
+    },null,2);
+    const url = URL.createObjectURL(new Blob([data],{type:'application/json'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'electro-ai-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },
+  showSettings(){document.getElementById('modal-settings').hidden=false;},
+  loadSettingsToForm(){document.getElementById('set-company').value=this.settings.company;document.getElementById('set-license').value=this.settings.license;document.getElementById('set-labor-rate').value=this.settings.laborRate;document.getElementById('set-markup').value=this.settings.markup;document.getElementById('set-tax').value=this.settings.tax;document.getElementById('set-lang').value=this.settings.lang;},
+  saveSettings(){
+    const numericFields = ['set-labor-rate','set-markup','set-tax'].map(id=>document.getElementById(id));
+    const invalid = numericFields.find(field=>!Number.isFinite(field.valueAsNumber)||!field.checkValidity());
+    if(invalid){invalid.focus();this.toast('Enter a valid rate, markup and tax.');return;}
+    this.settings.company=document.getElementById('set-company').value;this.settings.license=document.getElementById('set-license').value;this.settings.laborRate=document.getElementById('set-labor-rate').valueAsNumber;
+    this.settings.markup=document.getElementById('set-markup').valueAsNumber;
+    this.settings.tax=document.getElementById('set-tax').valueAsNumber;if(!this.saveState())return;this.closeModal('modal-settings');this.updateEstimateSummary();this.updateDashboardDate();this.renderDashboard();this.toast('Settings saved');},
+  setLang(l){this.settings.lang=l;},
+
+  closeModal(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.dynamic)el.remove();else el.hidden=true;},
+  toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(this._tt);this._tt=setTimeout(()=>el.classList.remove('show'),2500);},
+  esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;},
+
+  // ── AUTH / TRIAL / SUBSCRIPTION ──
+  getSession(){
+    try{return JSON.parse(localStorage.getItem('electro-ai-session'))||null;}catch(e){return null;}
+  },
+  setSession(data){
+    try{localStorage.setItem('electro-ai-session',JSON.stringify(data));}catch(e){}
+  },
+  checkAuth(){
+    const session=this.getSession();
+    const params=new URLSearchParams(location.search);
+    if(params.get('demo')==='1'){this.isDemo=true;document.getElementById('auth-gate').hidden=true;document.getElementById('app').style.display='';const banner=document.getElementById('trial-banner');banner.innerHTML='<i class="fa-solid fa-flask"></i> Demo mode — data won’t be saved. <a href="app.html" onclick="return false" style="cursor:pointer" onclick="App.showUpgrade();return false">Start free trial</a>';banner.classList.add('visible');return;}
+    if(!session){document.getElementById('auth-gate').hidden=false;document.getElementById('app').style.display='none';return;}
+    document.getElementById('auth-gate').hidden=true;document.getElementById('app').style.display='';
+    if(session.plan==='trial'){
+      const daysLeft=Math.max(0,Math.ceil((new Date(session.trialEnd)-new Date())/(1000*60*60*24)));
+      if(daysLeft<=0){this.showTrialExpired();return;}
+      const banner=document.getElementById('trial-banner');
+      banner.innerHTML=`<i class="fa-solid fa-clock"></i> ${daysLeft} day${daysLeft!==1?'s':''} left in your free trial. <a href="#" onclick="App.showUpgrade();return false">Upgrade now</a>`;
+      banner.classList.add('visible');
+    }else if(session.plan==='pro'){
+      document.getElementById('trial-banner').classList.remove('visible');
+    }
+  },
+  signIn(){
+    const email=document.getElementById('auth-email').value.trim();
+    const pw=document.getElementById('auth-password').value;
+    if(!email||!email.includes('@')){this.toast('Enter a valid email');return;}
+    if(!pw||pw.length<6){this.toast('Password must be at least 6 characters');return;}
+    const existing=this.getSession();
+    if(existing&&existing.email===email){
+      document.getElementById('auth-gate').hidden=true;document.getElementById('app').style.display='';
+      this.checkAuth();this.toast('Welcome back!');return;
+    }
+    this.setSession({email,plan:'trial',trialEnd:new Date(Date.now()+14*24*60*60*1000).toISOString(),created:new Date().toISOString()});
+    document.getElementById('auth-gate').hidden=true;document.getElementById('app').style.display='';
+    this.checkAuth();this.toast('Welcome! Your 14-day free trial has started.');
+  },
+  startTrial(){
+    const email=document.getElementById('auth-email').value.trim();
+    if(!email||!email.includes('@')){this.toast('Enter your email to start the trial');document.getElementById('auth-email').focus();return;}
+    this.setSession({email,plan:'trial',trialEnd:new Date(Date.now()+14*24*60*60*1000).toISOString(),created:new Date().toISOString()});
+    document.getElementById('auth-gate').hidden=true;document.getElementById('app').style.display='';
+    this.checkAuth();this.toast('Your 14-day free trial has started!');
+  },
+  enterDemo(){
+    this.isDemo=true;
+    document.getElementById('auth-gate').hidden=true;document.getElementById('app').style.display='';
+    const banner=document.getElementById('trial-banner');
+    banner.innerHTML='<i class="fa-solid fa-flask"></i> Demo mode — data won\'t be saved. <a href="#" onclick="App.showUpgrade();return false">Start free trial</a>';
+    banner.classList.add('visible');
+  },
+  showTrialExpired(){
+    document.getElementById('auth-gate').hidden=false;document.getElementById('app').style.display='none';
+    const card=document.querySelector('.auth-card');
+    card.innerHTML=`<div class="logo"><span class="bolt"><i class="fa-solid fa-bolt"></i></span> Electro AI</div>
+    <p style="color:var(--danger);font-weight:600">Your free trial has expired</p>
+    <p>Upgrade to Electro AI Pro to continue using all features.</p>
+    <button class="btn btn-accent btn-full" style="margin:16px 0" onclick="App.checkout()"><i class="fa-solid fa-crown"></i> Upgrade — $29/month</button>
+    <button class="btn btn-outline btn-full" onclick="App.enterDemo()">Continue in Demo Mode</button>`;
+  },
+  showUpgrade(){
+    const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='modal-upgrade';
+    overlay.innerHTML=`<div class="modal">
+      <div class="modal-title"><i class="fa-solid fa-crown" style="color:var(--accent)"></i> Upgrade to Pro</div>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:42px;font-weight:800;font-family:var(--font-display);color:var(--primary)">$29<span style="font-size:16px;color:var(--fg-tertiary)">/month</span></div>
+        <p style="font-size:13px;color:var(--fg-tertiary)">Cancel anytime. No contracts.</p>
+      </div>
+      <div style="text-align:left;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> Unlimited projects &amp; estimates</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> Professional PDF export with your logo</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> Floor plan drawing &amp; printing</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> NEC calculators &amp; inspection checklists</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> Camera scanning &amp; photo documentation</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> Labor timer &amp; time tracking</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px"><i class="fa-solid fa-check" style="color:var(--success)"></i> Data backup &amp; export</div>
+      </div>
+      <button class="btn btn-accent btn-full" style="margin-bottom:10px" onclick="App.checkout()"><i class="fa-solid fa-lock"></i> Subscribe — $29/month</button>
+      <button class="btn btn-outline btn-full" onclick="App.closeModal('modal-upgrade')">Maybe Later</button>
+      <p style="text-align:center;margin-top:12px;font-size:11px;color:var(--fg-tertiary)"><i class="fa-solid fa-shield-halved"></i> Payments secured by Stripe (test mode)</p>
+    </div>`;
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+    document.body.appendChild(overlay);
+  },
+  checkout(){
+    // Stripe test-mode checkout simulation
+    // In production, replace with real Stripe Checkout redirect
+    const session=this.getSession()||{};
+    const modal=document.getElementById('modal-upgrade');if(modal)modal.remove();
+    const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='modal-checkout';
+    overlay.innerHTML=`<div class="modal">
+      <div style="text-align:center;padding:8px 0">
+        <div style="background:var(--primary);color:#fff;padding:16px;border-radius:var(--radius);margin-bottom:16px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px">TEST MODE</div>
+          <div style="font-size:18px;font-weight:700;font-family:var(--font-display)">Stripe Checkout</div>
+        </div>
+        <p style="font-size:14px;font-weight:600;margin-bottom:4px">Electro AI Pro — $29.00/month</p>
+        <p style="font-size:12px;color:var(--fg-tertiary);margin-bottom:16px">Use test card: 4242 4242 4242 4242</p>
+        <div class="form-group"><label class="form-label">Card Number</label><input type="text" id="cc-number" value="4242 4242 4242 4242" placeholder="4242 4242 4242 4242"></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Expiry</label><input type="text" id="cc-exp" value="12/28" placeholder="MM/YY"></div><div class="form-group"><label class="form-label">CVC</label><input type="text" id="cc-cvc" value="123" placeholder="123"></div></div>
+        <button class="btn btn-accent btn-full" style="margin-top:8px" onclick="App.completeCheckout()"><i class="fa-solid fa-lock"></i> Pay $29.00</button>
+        <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="document.getElementById('modal-checkout').remove()">Cancel</button>
+        <p style="margin-top:12px;font-size:11px;color:var(--fg-tertiary)"><i class="fa-solid fa-flask"></i> This is a test payment — no real charges</p>
+      </div>
+    </div>`;
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+    document.body.appendChild(overlay);
+  },
+  completeCheckout(){
+    const session=this.getSession()||{};
+    session.plan='pro';session.subscribedAt=new Date().toISOString();
+    this.setSession(session);
+    document.getElementById('modal-checkout')?.remove();
+    document.getElementById('trial-banner').classList.remove('visible');
+    this.toast('Welcome to Electro AI Pro! Subscription active.');
+  },
+  signOut(){
+    localStorage.removeItem('electro-ai-session');
+    this.isDemo=false;
+    location.reload();
+  },
+};
+
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.hidden=true;}));
+App.checkAuth();
+App.init();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "electro-ai",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "C:\\Users\\NJIEC Instructor\\Documents\\Codex\\2026-11-12\\teng\\electro-ai"],
+      "port": 8080
+    }
+  ]
+}

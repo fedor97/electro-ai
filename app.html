@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1e3a5f">
 <meta name="description" content="Professional electrical estimating, floor plans, and NEC tools for electricians and contractors.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%231e3a5f'/%3E%3Cpath d='M310 80L186 272h80l-54 160 124-192h-80z' fill='%23d48a3a'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%231e3a5f'/%3E%3Cpath d='M310 80L186 272h80l-54 160 124-192h-80z' fill='%23d48a3a'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
@@ -222,6 +225,24 @@ input:focus,select:focus,textarea:focus { border-color:var(--primary); }
 .more-item { display:flex; flex-direction:column; align-items:center; gap:8px; padding:20px 12px; background:var(--bg-surface); border:1px solid var(--border-light); border-radius:var(--radius); cursor:pointer; transition:all .2s; font-size:13px; font-weight:600; color:var(--fg-secondary); }
 .more-item:hover { border-color:var(--primary); color:var(--primary); }
 .more-item i { font-size:24px; color:var(--accent); }
+/* ── Photo grid ── */
+.pd-photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; }
+.pd-photo-grid:empty::after { content:'No photos yet'; display:block; grid-column:1/-1; text-align:center; padding:20px; color:var(--fg-tertiary); font-size:13px; }
+.pd-photo-item { position:relative; aspect-ratio:1; border-radius:var(--radius-sm); overflow:hidden; cursor:pointer; }
+.pd-photo-item img { width:100%; height:100%; object-fit:cover; transition:transform .2s; }
+.pd-photo-item:hover img { transform:scale(1.05); }
+.pd-photo-item .photo-delete { position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; opacity:0; transition:opacity .2s; }
+.pd-photo-item:hover .photo-delete { opacity:1; }
+/* ── Page transitions ── */
+.page.active { animation:pageIn .25s ease; }
+@keyframes pageIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+/* ── Touch feedback ── */
+.btn:active, .quick-action:active, .project-card:active, .more-item:active, .nav-item:active { transform:scale(0.97); }
+.project-card { transition:all .2s, transform .1s; }
+/* ── Photo lightbox ── */
+.lightbox { position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.9); display:flex; align-items:center; justify-content:center; padding:16px; }
+.lightbox img { max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-sm); }
+.lightbox-close { position:absolute; top:16px; right:16px; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.15); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 /* ── Trial banner ── */
 .trial-banner { background:linear-gradient(135deg,var(--accent),var(--accent-hover)); color:#fff; text-align:center; padding:10px 16px; font-size:13px; font-weight:600; display:none; }
@@ -296,6 +317,30 @@ input:focus,select:focus,textarea:focus { border-color:var(--primary); }
       <div class="project-list" id="projects-list"></div>
     </div>
 
+    <!-- PROJECT DETAIL -->
+    <div id="page-project-detail" class="page">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <button class="btn btn-outline btn-sm" onclick="App.navigate('projects')" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <h2 style="font-size:20px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="pd-name"></h2>
+        <button class="btn btn-outline btn-sm" onclick="App.editProject()"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="App.deleteProject()"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="pd-meta"></div>
+      <div class="card" style="margin-bottom:12px;padding:14px">
+        <div class="section-header" style="margin-bottom:8px"><span class="section-title"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Photos</span><button class="btn btn-primary btn-sm" onclick="App.addProjectPhoto()"><i class="fa-solid fa-plus"></i> Add</button></div>
+        <input type="file" id="project-photo-input" accept="image/*" capture="environment" hidden>
+        <div id="pd-photos" class="pd-photo-grid"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <button class="btn btn-primary btn-full" onclick="App.openProjectEstimate()"><i class="fa-solid fa-calculator"></i> Estimate</button>
+        <button class="btn btn-accent btn-full" onclick="App.openProjectPlan()"><i class="fa-solid fa-drafting-compass"></i> Floor Plan</button>
+      </div>
+      <div id="pd-notes-section" class="card" style="padding:14px">
+        <div class="section-header" style="margin-bottom:8px"><span class="section-title"><i class="fa-solid fa-sticky-note" style="color:var(--accent)"></i> Notes</span></div>
+        <textarea id="pd-notes" rows="3" placeholder="Add project notes..." oninput="App.saveProjectNotes()" style="resize:vertical"></textarea>
+      </div>
+    </div>
+
     <!-- SCANNER -->
     <div id="page-scanner" class="page">
       <h2 style="font-size:20px;margin-bottom:16px">Photo Scanner Demo</h2>
@@ -345,8 +390,9 @@ input:focus,select:focus,textarea:focus { border-color:var(--primary); }
           <button class="btn btn-outline btn-sm" onclick="App.zoomFloorPlan(-0.25)" aria-label="Zoom out">−</button>
           <button class="btn btn-outline btn-sm" onclick="App.fitFloorPlan()">Fit</button>
           <button class="btn btn-outline btn-sm" onclick="App.zoomFloorPlan(0.25)" aria-label="Zoom in">+</button>
-          <button class="btn btn-primary btn-sm" onclick="App.printFloorPlan()"><i class="fa-solid fa-print"></i> Print / PDF</button>
-        <button class="btn btn-outline btn-sm" onclick="App.clearFloorPlan()"><i class="fa-solid fa-trash"></i> Clear</button>
+          <button class="btn btn-primary btn-sm" onclick="App.exportFloorPlanPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="App.printFloorPlan()"><i class="fa-solid fa-print"></i></button>
+        <button class="btn btn-outline btn-sm" onclick="App.clearFloorPlan()"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
       <label class="form-label" for="fp-title">Drawing title</label>
@@ -719,6 +765,11 @@ const App = {
     const el=document.getElementById('page-'+page); if(el)el.classList.add('active');
     const nav=document.querySelector(`.nav-item[data-page="${page}"]`); if(nav)nav.classList.add('active');
     if(this.currentPage==='scanner'&&page!=='scanner')this.closeCamera();
+    if(this.currentPage==='floorplan'&&this._currentProject){
+      this._currentProject.floorPlanElements=[...this.floorPlan.elements];
+      this._currentProject.floorPlanTitle=this.floorPlan.title;
+      this.saveState();
+    }
     this.currentPage=page;
     if(page==='floorplan')this.resizeCanvas();
     if(page==='scanner')this.resetScanner();
@@ -761,7 +812,6 @@ const App = {
     const saved=this.saveState();this.closeModal('modal-new-project');this.renderProjects();this.renderDashboard();this.renderTimerProjects();if(saved)this.toast('Project created');
     ['np-name','np-client','np-address'].forEach(id=>document.getElementById(id).value='');
   },
-  openProject(id){const p=this.projects.find(x=>x.id===id);if(!p)return;document.getElementById('est-project-name').value=p.name;document.getElementById('est-client').value=p.client||'';this.saveState();this.navigate('estimate');},
 
   async openCamera(){
     if(!navigator.mediaDevices?.getUserMedia){document.getElementById('camera-input').click();return;}
@@ -1286,11 +1336,133 @@ const App = {
     this.isDemo=false;
     location.reload();
   },
+
+  // ── PROJECT DETAIL ──
+  _currentProject:null,
+  openProject(id){
+    const p=this.projects.find(x=>x.id===id);if(!p)return;
+    this._currentProject=p;
+    document.getElementById('pd-name').textContent=p.name;
+    const icons={residential:'fa-house',commercial:'fa-building',industrial:'fa-industry',renovation:'fa-hammer'};
+    const badge=p.status==='active'?'badge-active':p.status==='completed'?'badge-completed':'badge-pending';
+    document.getElementById('pd-meta').innerHTML=`
+      <span class="badge ${badge}">${p.status}</span>
+      <span style="font-size:12px;color:var(--fg-tertiary)">${this.esc(p.client||'No client')}</span>
+      <span style="font-size:12px;color:var(--fg-tertiary)">${this.esc(p.address||'')}</span>
+      <span style="font-size:13px;font-weight:700;color:var(--primary);margin-left:auto">$${(p.amount||0).toLocaleString()}</span>`;
+    document.getElementById('pd-notes').value=p.notes||'';
+    this.renderProjectPhotos();
+    this.navigate('project-detail');
+  },
+  renderProjectPhotos(){
+    const p=this._currentProject;if(!p)return;
+    const el=document.getElementById('pd-photos');
+    if(!p.photos||!p.photos.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--fg-tertiary);font-size:13px"><i class="fa-solid fa-camera" style="font-size:24px;opacity:.4;display:block;margin-bottom:8px"></i>Tap Add to capture project photos</div>';return;}
+    el.innerHTML=p.photos.map((src,i)=>`<div class="pd-photo-item" onclick="App.viewPhoto(${i})">
+      <img src="${src}" alt="Photo ${i+1}" loading="lazy">
+      <button class="photo-delete" onclick="event.stopPropagation();App.deletePhoto(${i})"><i class="fa-solid fa-xmark"></i></button>
+    </div>`).join('');
+  },
+  addProjectPhoto(){
+    const input=document.getElementById('project-photo-input');
+    input.onchange=()=>{
+      const file=input.files[0];input.value='';if(!file)return;
+      if(!file.type.startsWith('image/')){this.toast('Choose an image');return;}
+      const reader=new FileReader();
+      reader.onload=()=>{
+        const img=new Image();
+        img.onload=()=>{
+          const max=800;let w=img.width,h=img.height;
+          if(w>max||h>max){const r=Math.min(max/w,max/h);w*=r;h*=r;}
+          const c=document.createElement('canvas');c.width=w;c.height=h;
+          c.getContext('2d').drawImage(img,0,0,w,h);
+          const dataUrl=c.toDataURL('image/jpeg',0.7);
+          const p=this._currentProject;if(!p)return;
+          if(!p.photos)p.photos=[];
+          p.photos.push(dataUrl);
+          this.saveState();this.renderProjectPhotos();this.toast('Photo added');
+        };
+        img.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  },
+  deletePhoto(i){
+    const p=this._currentProject;if(!p||!p.photos)return;
+    p.photos.splice(i,1);this.saveState();this.renderProjectPhotos();this.toast('Photo removed');
+  },
+  viewPhoto(i){
+    const p=this._currentProject;if(!p||!p.photos||!p.photos[i])return;
+    const lb=document.createElement('div');lb.className='lightbox';
+    lb.innerHTML=`<button class="lightbox-close" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button><img src="${p.photos[i]}" alt="Photo">`;
+    lb.addEventListener('click',e=>{if(e.target===lb)lb.remove();});
+    document.body.appendChild(lb);
+  },
+  saveProjectNotes(){
+    const p=this._currentProject;if(!p)return;
+    p.notes=document.getElementById('pd-notes').value;this.saveState();
+  },
+  editProject(){
+    const p=this._currentProject;if(!p)return;
+    const statuses=['pending','active','completed'];
+    const nextStatus=statuses[(statuses.indexOf(p.status)+1)%statuses.length];
+    p.status=nextStatus;this.saveState();this.openProject(p.id);this.renderDashboard();
+    this.toast('Status: '+nextStatus);
+  },
+  deleteProject(){
+    const p=this._currentProject;if(!p)return;
+    if(!window.confirm('Delete "'+p.name+'"? This cannot be undone.'))return;
+    this.projects=this.projects.filter(x=>x.id!==p.id);
+    this._currentProject=null;this.saveState();this.renderDashboard();this.renderProjects();this.navigate('projects');this.toast('Project deleted');
+  },
+  openProjectEstimate(){
+    const p=this._currentProject;if(!p)return;
+    document.getElementById('est-project-name').value=p.name;
+    document.getElementById('est-client').value=p.client||'';
+    this.saveState();this.navigate('estimate');
+  },
+  openProjectPlan(){
+    const p=this._currentProject;if(!p)return;
+    if(p.floorPlanElements){this.floorPlan.elements=p.floorPlanElements;this.floorPlan.title=p.floorPlanTitle||p.name;}
+    else{this.floorPlan.title=p.name;}
+    document.getElementById('fp-title').value=this.floorPlan.title;
+    this.drawFloorPlan();this.navigate('floorplan');
+  },
+
+  // ── FLOOR PLAN PDF EXPORT (jsPDF) ──
+  exportFloorPlanPDF(){
+    if(!this.floorPlan.elements.length){this.toast('Draw something first');return;}
+    if(!window.jspdf?.jsPDF){this.toast('PDF library unavailable');return;}
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape'});
+    const pw=doc.internal.pageSize.width,ph=doc.internal.pageSize.height;
+    doc.setFillColor(30,58,95);doc.rect(0,0,pw,20,'F');
+    doc.setTextColor(255);doc.setFontSize(14);doc.setFont('helvetica','bold');
+    doc.text('ELECTRO AI — '+(this.floorPlan.title||'Floor Plan'),10,13);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');
+    doc.text('Date: '+new Date().toLocaleDateString('en-US'),pw-10,13,{align:'right'});
+    this.drawFloorPlan(true);
+    const canvas=document.getElementById('fp-canvas');
+    const imgData=canvas.toDataURL('image/png');
+    this.drawFloorPlan();
+    const margin=10,topY=25;
+    const availW=pw-margin*2,availH=ph-topY-margin;
+    const ratio=Math.min(availW/canvas.width,availH/canvas.height);
+    const imgW=canvas.width*ratio,imgH=canvas.height*ratio;
+    doc.addImage(imgData,'PNG',margin,topY,imgW,imgH);
+    doc.setTextColor(150);doc.setFontSize(7);
+    doc.text('Grid = 1 ft · Generated by Electro AI',10,ph-5);
+    const filename=(this.floorPlan.title.trim()||'Floor-Plan').replace(/[<>:"/\\|?*]/g,'-').slice(0,100);
+    doc.save(filename+'.pdf');
+    this.toast('Floor plan PDF downloaded');
+  },
 };
 
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.hidden=true;}));
 App.checkAuth();
 App.init();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
